@@ -13,8 +13,12 @@ void setup()
   
   lcd.begin(16,2);
   pinMode(6, OUTPUT);
+  
 }
-float count = 0.0;
+
+float i = 0.0;
+int switchTemplate = 1;
+int templateTurn = 0;
 
 void loop() {
   
@@ -31,17 +35,25 @@ void loop() {
       //Serial.write(c); // uncomment this line if you want to see the GPS data flowing
       if (gps.encode(c)) { // Did a new valid sentence come in?
         newData = true;
-        count = 0.0;
-      } else {
-        count += 0.5; 
       }
     }
   }
 
   if (newData) {
+    i = 0;
     float flat, flon;
     unsigned long age;
+    int year;
+    byte month, day, hour, minutes, second, hundredths;
+    unsigned long fix_age;
+    // get gps data.
     gps.f_get_position(&flat, &flon, &age);
+    int kmph = gps.f_speed_kmph();
+    int alt = gps.f_altitude();
+    float fc = gps.f_course();
+    gps.crack_datetime(&year, &month, &day, &hour, &minutes, &second, &hundredths, &fix_age);
+
+    // print to serial interface.
     Serial.print("LAT=");
     Serial.print(flat == TinyGPS::GPS_INVALID_F_ANGLE ? 0.0 : flat, 6);
     Serial.print(" LON=");
@@ -50,17 +62,61 @@ void loop() {
     Serial.print(gps.satellites() == TinyGPS::GPS_INVALID_SATELLITES ? 0 : gps.satellites());
     Serial.print(" PREC=");
     Serial.print(gps.hdop() == TinyGPS::GPS_INVALID_HDOP ? 0 : gps.hdop());
-    lcd.setCursor(0, 0);
-    lcd.print("LAT: ");
-    lcd.print(flat == TinyGPS::GPS_INVALID_F_ANGLE ? 0.0 : flat, 6);
-    lcd.setCursor(0, 1);
-    lcd.print("LON: ");
-    lcd.print(flon == TinyGPS::GPS_INVALID_F_ANGLE ? 0.0 : flon, 6);
+    // switch between templates
+    switch (switchTemplate) {
+      case 1:
+        lcd.setCursor(0, 0);
+        lcd.print("LAT: ");
+        lcd.print(flat == TinyGPS::GPS_INVALID_F_ANGLE ? 0.0 : flat, 6);
+        lcd.setCursor(0, 1);
+        lcd.print("LON: ");
+        lcd.print(flon == TinyGPS::GPS_INVALID_F_ANGLE ? 0.0 : flon, 6);
+        break;
+      case 2:
+        lcd.setCursor(0, 0);
+        lcd.print("SPEED: ");
+        lcd.print(kmph);
+        lcd.setCursor(12, 0);
+        lcd.print("km/h");
+        lcd.setCursor(0, 1);
+        lcd.print("ALT: ");
+        lcd.print(alt);
+        lcd.print("m");
+        break;
+      case 3:
+        lcd.setCursor(0, 0);
+        lcd.print("COURSE: ");
+        lcd.print(fc);
+        lcd.setCursor(0, 1);
+        lcd.print("TIME: ");
+        lcd.print(hour +2);
+        lcd.print(":");
+        if (minutes < 10) { 
+          lcd.print("0"); 
+        } else {
+          lcd.print(minutes);
+        }
+        break;
+    }
+    templateTurn ++;
+    if (templateTurn > 40) {
+      switchTemplate ++;
+      lcd.clear();
+      if (switchTemplate > 3) {
+        switchTemplate = 1; 
+      }
+      templateTurn = 0; 
+    }
+  
   } else {
+    if (i == 0) {
+       lcd.clear(); 
+    }
     lcd.setCursor(0,0);
     lcd.print("Wait for it...");
     lcd.setCursor(0,1);
-    lcd.print(count);
+    lcd.print(i);
+    i = i + 0.5;
   }
 
 
