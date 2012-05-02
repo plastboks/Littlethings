@@ -14,6 +14,7 @@ void setup()
   lcd.begin(16,2);
   pinMode(6, OUTPUT);
 }
+float count = 0.0;
 
 void loop() {
   
@@ -28,8 +29,12 @@ void loop() {
     while (ss.available()) {
       char c = ss.read();
       //Serial.write(c); // uncomment this line if you want to see the GPS data flowing
-      if (gps.encode(c)) // Did a new valid sentence come in?
+      if (gps.encode(c)) { // Did a new valid sentence come in?
         newData = true;
+        count = 0.0;
+      } else {
+        count += 0.5; 
+      }
     }
   }
 
@@ -55,7 +60,7 @@ void loop() {
     lcd.setCursor(0,0);
     lcd.print("Wait for it...");
     lcd.setCursor(0,1);
-    lcd.print(millis()/1000);
+    lcd.print(count);
   }
 
 
