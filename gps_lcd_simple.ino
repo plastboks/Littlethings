@@ -11,6 +11,8 @@ const int buttonPin = 5;
 float i = 0.0;
 int switchTemplate = 1;
 int templateTurn = 0;
+bool newData = false;
+
 
 void setup() {
   // set serial speeds.
@@ -30,18 +32,17 @@ void loop() {
   digitalWrite(lcdLightPin, HIGH);
   
   // set some variables
-  bool newData = false;
   unsigned long chars;
-  unsigned short sentences, failed;
   
   // for half a second we parse GPS data and report some key values.
-  for (unsigned long start = millis(); millis() - start < 500;) {
+  for (unsigned long start = millis(); millis() - start < 50;) {
     while (Serial.available()) {
       char c = Serial.read(); //we need to use the hardware serial for now.
       //Serial.write(c); // uncomment this line if you want to see the GPS data flowing.
       if (gps.encode(c)) { // Did a new valid sentence come in?
         newData = true;
-      }
+        digitalWrite(ledPin, HIGH);
+      } 
     }
   }
   
