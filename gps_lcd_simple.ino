@@ -75,7 +75,7 @@ void loop() {
       float fkmph = gps.f_speed_kmph();
       float falt = gps.f_altitude();
       float fc = gps.f_course();
-      //char cardinal = gps.cardinal();
+      const char *cardinal = gps.cardinal(fc);
       int satellites = gps.satellites();
       int hdop = gps.hdop();    
       gps.crack_datetime(&year, &month, &day, &hour, &minutes, &second, &hundredths, &fix_age);
@@ -102,8 +102,8 @@ void loop() {
           break;
         case 3:
           lcd.setCursor(0, 0);
-          lcd.print("CARDINAL");
-          //lcd.print(cardinal);
+          lcd.print("CARDINAL ");
+          lcd.print(cardinal);
           lcd.setCursor(0, 1);
           lcd.print("COURSE ");
           lcd.print(fc);
@@ -141,7 +141,12 @@ void loop() {
           } 
           break;
         case 5:
-          lcdTemplate1("SATELLITES ", satellites, "", "HDOP ", hdop, "");
+          lcd.setCursor(0, 0);
+          lcd.print("SATELLITES ");
+          lcd.print(satellites);
+          lcd.setCursor(0, 1);
+          lcd.print("HDOP ");
+          lcd.print(hdop);
           break;
       }
     } else {
@@ -176,27 +181,6 @@ void loop() {
     }
   }
   
-}
+} // this ends the loop function
 
-void lcdTemplate0(char* prefix0, float value0, char* subfix0, char* prefix1, float value1, char* subfix1) {
-  lcd.setCursor(0, 0);
-  lcd.print(prefix0);
-  lcd.print(value0);
-  lcd.print(subfix0);
-  lcd.setCursor(0, 1);
-  lcd.print(prefix1);
-  lcd.print(value1);
-  lcd.print(subfix1);
-}
-
-void lcdTemplate1(char* prefix0, int value0, char* subfix0, char* prefix1, int value1, char* subfix1) {
-  lcd.setCursor(0, 0);
-  lcd.print(prefix0);
-  lcd.print(value0);
-  lcd.print(subfix0);
-  lcd.setCursor(0, 1);
-  lcd.print(prefix1);
-  lcd.print(value1);
-  lcd.print(subfix1);
-}
 
