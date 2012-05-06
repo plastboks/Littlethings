@@ -5,10 +5,12 @@
 TinyGPS gps;
 LiquidCrystal lcd(12, 11, 10, 9, 8, 7);
 
+// the hardware pins.
 const int ledPin = 13;
 const int lcdLightPin = 6;
 const int buttonPin = 5;
 
+// global variables.
 float i = 0.0;
 int buttonState = 0;
 long faultCounter = 50;
@@ -16,46 +18,49 @@ long previousMillis = 0;
 long interval = 500;
 bool newData = false;
 int switchTemplate = EEPROM.read(1);
+float droven = 0.0;
+float lastLat = 0.0;
+float lastLon = 0.0;
+
 
 void setup() {
-  
   // set serial speeds.
-  Serial.begin(57600);
-  
+  Serial.begin(57600);  
   // setup lcd display.
   lcd.begin(16,2);
-  
-  // setup digital pins
+  // setup digital pins.
   pinMode(ledPin, OUTPUT);
   pinMode(lcdLightPin, OUTPUT);
   pinMode(buttonPin, INPUT);
-
 }
+
 
 void loop() {
   
   // activate lcd light.
   digitalWrite(lcdLightPin, HIGH);
-  // reset faultCounter
+  // reset faultCounter.
   faultCounter ++;
   
   // check the serialdata 10 times.
   for (unsigned long start = millis(); millis() - start < 10;) {
     if (Serial.available()) {
       char c = Serial.read();
-      if (gps.encode(c)) { 
+      if (gps.encode(c)) {
+        // deactivate faulcounter
         faultCounter = 0;
       }
     }
   }
   
-  // check if faultcounter has exceeded 50 turns
+  // check if faultcounter has exceeded 50 turns.
   if (faultCounter < 50) {
      newData = true;
   } else {
      newData = false; 
   }
   
+  // to this twice pr second.
   unsigned long currentMillis = millis();
   if (millis() - previousMillis > interval) {
     previousMillis = currentMillis;
@@ -79,6 +84,9 @@ void loop() {
       int satellites = gps.satellites();
       int hdop = gps.hdop();    
       gps.crack_datetime(&year, &month, &day, &hour, &minutes, &second, &hundredths, &fix_age);
+      droven = droven + gps.distance_between(flat, flon, lastLat, lastLon);
+      lastLat = flat;
+      lastLon = flon;
       
       // switch between templates.
       switch (switchTemplate) {
@@ -148,6 +156,12 @@ void loop() {
           lcd.print("HDOP ");
           lcd.print(hdop);
           break;
+        case 6:
+          lcd.setCursor(0, 0);
+          lcd.print("DROVEN ");
+          lcd.print(droven);
+          lcd.setCursor(0, 1);
+          break;
       }
     } else {
       if (i == 0) {
@@ -162,7 +176,7 @@ void loop() {
     }
   }
   
-  // a bit messy...
+  // a bit messy... this to prevent the buttonState incrementing more than one time.
   if (digitalRead(buttonPin) == LOW) {
      buttonState = 0; 
   }
@@ -175,12 +189,12 @@ void loop() {
       lcd.clear();
     }
     // clear display upon template change.
-    if (switchTemplate > 5) {
+    if (switchTemplate > 6) {
       switchTemplate = 1;
       EEPROM.write(1, switchTemplate);
     }
   }
   
-} // this ends the loop function
+} // this ends the loop function.
 
 
