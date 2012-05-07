@@ -11,6 +11,7 @@ const int lcdLightPin = 6;
 const int buttonPin = 5;
 
 // global variables.
+int neverHadFix = 1;
 float i = 0.0;
 int buttonState = 0;
 long faultCounter = 50;
@@ -18,7 +19,7 @@ long previousMillis = 0;
 long interval = 500;
 bool newData = false;
 int switchTemplate = EEPROM.read(1);
-float droven = 0.0;
+float driven = 0.0;
 float lastLat = 0.0;
 float lastLon = 0.0;
 
@@ -84,7 +85,13 @@ void loop() {
       int satellites = gps.satellites();
       int hdop = gps.hdop();    
       gps.crack_datetime(&year, &month, &day, &hour, &minutes, &second, &hundredths, &fix_age);
-      droven = droven + gps.distance_between(flat, flon, lastLat, lastLon);
+      if (neverHadFix == 1) {
+        lastLat = flat;
+        lastLon = flon;
+      }
+      if (fkmph > 5.0) {
+        driven = driven + gps.distance_between(flat, flon, lastLat, lastLon);
+      }
       lastLat = flat;
       lastLon = flon;
       
@@ -158,11 +165,13 @@ void loop() {
           break;
         case 6:
           lcd.setCursor(0, 0);
-          lcd.print("DROVEN ");
-          lcd.print(droven);
+          lcd.print("DRIVEN ");
+          lcd.print(driven/1000);
+          lcd.print("km");
           lcd.setCursor(0, 1);
           break;
       }
+      neverHadFix = 0;
     } else {
       if (i == 0) {
         // clear display upon "wait for it" change.
@@ -174,6 +183,7 @@ void loop() {
       lcd.print(i);
       i = i + 0.5;
     }
+
   }
   
   // a bit messy... this to prevent the buttonState incrementing more than one time.
