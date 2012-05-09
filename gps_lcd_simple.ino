@@ -89,7 +89,7 @@ void loop() {
         lastLat = flat;
         lastLon = flon;
       }
-      if (fkmph > 5.0) {
+      if (fkmph > 2.0) {
         driven = driven + gps.distance_between(flat, flon, lastLat, lastLon);
       }
       lastLat = flat;
@@ -109,11 +109,11 @@ void loop() {
           lcd.setCursor(0, 0);
           lcd.print("SPEED ");
           lcd.print(fkmph);
-          lcd.print("km/h");
+          lcd.print("km/h ");
           lcd.setCursor(0, 1);
-          lcd.print("ALT ");
-          lcd.print(falt);
-          lcd.print("m");
+          lcd.print("DRIVEN ");
+          lcd.print(driven/1000);
+          lcd.print("km ");
           break;
         case 3:
           lcd.setCursor(0, 0);
@@ -165,9 +165,8 @@ void loop() {
           break;
         case 6:
           lcd.setCursor(0, 0);
-          lcd.print("DRIVEN ");
-          lcd.print(driven/1000);
-          lcd.print("km");
+          lcd.print("ALT ");
+          lcd.print(falt);
           lcd.setCursor(0, 1);
           break;
       }
