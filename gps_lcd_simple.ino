@@ -20,6 +20,7 @@ long interval = 500;
 bool newData = false;
 int switchTemplate = EEPROM.read(1);
 float driven = 0.0;
+float drivenMEM = EEPROM.read(2);
 float lastLat = 0.0;
 float lastLon = 0.0;
 
@@ -91,6 +92,8 @@ void loop() {
       }
       if (fkmph > 2.0) {
         driven = driven + gps.distance_between(flat, flon, lastLat, lastLon);
+        drivenMEM = driven + drivenMEM;
+        EEPROM.write(2, drivenMEM);
       }
       lastLat = flat;
       lastLon = flon;
@@ -111,9 +114,10 @@ void loop() {
           lcd.print(fkmph);
           lcd.print("km/h ");
           lcd.setCursor(0, 1);
-          lcd.print("DRIVEN ");
+          lcd.print("A:");
           lcd.print(driven/1000);
-          lcd.print("km ");
+          lcd.print(" B:");
+          lcd.print(drivenMEM/1000);
           break;
         case 3:
           lcd.setCursor(0, 0);
@@ -167,6 +171,7 @@ void loop() {
           lcd.setCursor(0, 0);
           lcd.print("ALT ");
           lcd.print(falt);
+          lcd.print("m ");
           lcd.setCursor(0, 1);
           break;
       }
