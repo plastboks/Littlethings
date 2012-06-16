@@ -75,6 +75,7 @@ void gpsData(void) {
   
   
   if (newData) {
+
     gps.f_get_position(&flat, &flon, &age);
     float fkmph = gps.f_speed_kmph();
     float falt = gps.f_altitude();
@@ -111,7 +112,7 @@ void gpsData(void) {
     u8g.setFont(u8g_font_6x12);
     u8g.setPrintPos(5, 64);
     fprintf(&lcdout, "%d-%02d-%02d  %02d:%02d:%02d", year, month, day, hour, minutes, second);
-    
+      
   } else {
     u8g.setFont(u8g_font_unifont);
     u8g.drawStr(4, 22, "Wait for it...");
@@ -123,13 +124,16 @@ void gpsData(void) {
 
 // program loop
 void loop(void) {
-  // picture loop
-  u8g.firstPage();  
-  do {
-    gpsData();
-  } while( u8g.nextPage() );
   
-  delay(250);
+  unsigned long currentMillis = millis();
+  if (millis() - previousMillis > interval) {
+    previousMillis = currentMillis;
+    // picture loop
+    u8g.firstPage();  
+    do {
+      gpsData();
+    } while( u8g.nextPage() );
+  }
   
 }
 
