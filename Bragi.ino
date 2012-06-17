@@ -14,6 +14,7 @@ const int buttonPin = 5;
 
 
 // Global variables.
+int neverHadFix = 1;
 long faultCounter = 50;
 bool newData = false;
 long previousMillis = 0;
@@ -21,6 +22,8 @@ long interval = 500;
 int switchTemplate = EEPROM.read(1);
 float lastLat = 0.0;
 float lastLon = 0.0;
+float aDriven = 0.0;
+float bDriven = 0.0;
 static FILE lcdout = {0} ;  // LCD FILE structure
 
 
@@ -80,35 +83,51 @@ void gpsData(void) {
     satellites = gps.satellites();
     hdop = gps.hdop();    
     gps.crack_datetime(&year, &month, &day, &hour, &minutes, &second, &hundredths, &fix_age);
+
+    if (neverHadFix == 1) { lastLat = flat; lastLon = flon; }
+    if (fkmph > 1.0) { aDriven = aDriven + gps.distance_between(flat, flon, lastLat, lastLon); }
    
     // graphic commands to redraw the complete screen should be placed here  
-    u8g.setFont(u8g_font_8x13);
-    u8g.drawStr( 0, 9, "LAT");
-    u8g.setPrintPos(55, 9);
+    u8g.setFont(u8g_font_5x7);
+    u8g.drawStr( 0, 6, "LA");
+    u8g.setPrintPos(14, 6);
     u8g.print(flat, 6);
-  
-    u8g.drawStr( 0, 20, "LON");
-    u8g.setPrintPos(55, 20);
+    u8g.drawStr( 66, 6, "LO");
+    u8g.setPrintPos(80, 6);
     u8g.print(flon, 6);
-  
-    u8g.drawStr( 0, 31, "ALT");
-    u8g.setPrintPos(55, 31);
-    u8g.print(falt, 1);
-    u8g.setPrintPos(100, 31);
-    u8g.print("m");
-  
-    u8g.drawStr( 0, 42, "SPEED");
-    u8g.setPrintPos(55, 42);
-    u8g.print(fkmph, 1);
 
-    u8g.drawStr( 0, 53, "COURSE");
-    u8g.setPrintPos(55, 53);
-    u8g.print(fc, 0);
+    u8g.drawLine(0, 8, 128, 8);
+
+    u8g.drawLine(40, 8, 40, 56);
     
+    u8g.setFont(u8g_font_5x7);
+    u8g.setPrintPos(0, 18);
+    u8g.print("Alt:");
+    u8g.setPrintPos(0, 28);
+    u8g.print(falt);
+    u8g.drawLine(0, 30, 40, 30);
+    u8g.setPrintPos(0, 40);
+    u8g.print("Course:");
+    u8g.setPrintPos(0, 50);
+    u8g.print(fc);
+
+    u8g.setFont(u8g_font_10x20);
+    u8g.setPrintPos(48, 28);
+    u8g.print(fkmph, 1);
     u8g.setFont(u8g_font_6x12);
-    u8g.setPrintPos(5, 64);
+    u8g.setPrintPos(104, 28);
+    u8g.print("km/h");
+  
+    u8g.setFont(u8g_font_5x7);
+    u8g.setPrintPos(44, 52);
+    fprintf(&lcdout, "A: %dkm | B: %dkm", aDriven/1000, bDriven);
+    
+    u8g.drawLine(0, 56, 128, 56);
+    u8g.setFont(u8g_font_5x7);
+    u8g.setPrintPos(14, 64);
     fprintf(&lcdout, "%d-%02d-%02d  %02d:%02d:%02d", year, month, day, hour, minutes, second);
-      
+    
+    neverHadFix = 0;
   } else {
     u8g.setFont(u8g_font_unifont);
     u8g.drawStr(4, 22, "Wait for it...");
