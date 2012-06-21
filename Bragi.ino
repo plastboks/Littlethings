@@ -51,7 +51,7 @@ bool gpsGetData(void) {
         faultCounter = 0;
     }
   }
-  if (faultCounter < 50) {
+  if (faultCounter < 2) {
     gps.f_get_position(&flat, &flon, &age);
     fkmph = gps.f_speed_kmph();
     falt = gps.f_altitude();
@@ -67,15 +67,17 @@ bool gpsGetData(void) {
 }
 
 void noSignalGpsScreen(void) {
-  u8g.setFont(u8g_font_unifont);
-  u8g.drawStr(4, 22, "Wait for it...");
+  u8g.setFont(u8g_font_10x20);
+  u8g.drawStr(10, 32, "Wait for it");
 }
 
 
 void firstGpsScreen(void) {
-  
-    //if (neverHadFix == 1) { lastLat = flat; lastLon = flon; }
-    //if (fkmph > 1.0) { aDriven = aDriven + gps.distance_between(flat, flon, lastLat, lastLon); }
+ 
+    if (fkmph > 1.0) { aDriven = aDriven + gps.distance_between(flat, flon, lastLat, lastLon); }
+    if (neverHadFix == 1) { lastLat = flat; lastLon = flon; }
+    lastLat = flat;
+    lastLon = flon;
     u8g.setFont(u8g_font_5x7);
     u8g.drawStr( 0, 6, "LA");
     u8g.setPrintPos(14, 6);
@@ -88,15 +90,15 @@ void firstGpsScreen(void) {
 
     u8g.drawLine(40, 8, 40, 56);
     
-    u8g.setFont(u8g_font_5x7);
+    u8g.setFont(u8g_font_6x12);
     u8g.setPrintPos(0, 18);
-    u8g.print("Alt:");
+    u8g.print("Alt");
     u8g.setPrintPos(0, 28);
     u8g.print(falt);
     u8g.drawLine(0, 30, 40, 30);
-    u8g.setPrintPos(0, 40);
-    u8g.print("Course:");
-    u8g.setPrintPos(0, 50);
+    u8g.setPrintPos(0, 42);
+    u8g.print("Course");
+    u8g.setPrintPos(0, 52);
     u8g.print(fc);
 
     u8g.setFont(u8g_font_10x20);
@@ -106,9 +108,12 @@ void firstGpsScreen(void) {
     u8g.setPrintPos(104, 28);
     u8g.print("km/h");
   
-    u8g.setFont(u8g_font_5x7);
+    u8g.setFont(u8g_font_6x12);
     u8g.setPrintPos(44, 52);
-    //fprintf(&lcdout, "A: %dkm | B: %dkm", aDriven/1000, bDriven);
+    u8g.print("A: ");
+    u8g.setPrintPos(80, 52);
+    u8g.print(aDriven/1000);
+    //fprintf(&lcdout, "A: %dkm", aDriven/1000);
     
     u8g.drawLine(0, 56, 128, 56);
     u8g.setFont(u8g_font_5x7);
