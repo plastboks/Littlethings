@@ -72,10 +72,14 @@ void noSignalGpsScreen(void) {
 }
 
 
+
 void firstGpsScreen(void) {
  
     if (fkmph > 1.0) { aDriven = aDriven + gps.distance_between(flat, flon, lastLat, lastLon); }
     if (neverHadFix == 1) { lastLat = flat; lastLon = flon; }
+    int timeZone = hour + 2;
+    if (timeZone == 24) { timeZone = 0; }
+    if (timeZone == 25) { timeZone = 1; }
     lastLat = flat;
     lastLon = flon;
     u8g.setFont(u8g_font_5x7);
@@ -111,14 +115,16 @@ void firstGpsScreen(void) {
     u8g.setFont(u8g_font_6x12);
     u8g.setPrintPos(44, 52);
     u8g.print("A: ");
-    u8g.setPrintPos(80, 52);
+    u8g.setPrintPos(60, 52);
     u8g.print(aDriven/1000);
+    u8g.setPrintPos(110, 52);
+    u8g.print("km");
     //fprintf(&lcdout, "A: %dkm", aDriven/1000);
     
     u8g.drawLine(0, 56, 128, 56);
     u8g.setFont(u8g_font_5x7);
     u8g.setPrintPos(14, 64);
-    fprintf(&lcdout, "%d-%02d-%02d  %02d:%02d:%02d", year, month, day, hour, minutes, second);
+    fprintf(&lcdout, "%d-%02d-%02d  %02d:%02d:%02d", year, month, day, timeZone, minutes, second);
 }
 
 
