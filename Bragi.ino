@@ -24,23 +24,28 @@ byte month, day, hour, minutes, second, hundredths;
 float lastLat = 0.0;
 float lastLon = 0.0;
 float aDriven = 0.0;
-float bDriven = 0.0;
+float bDriven, lastBDriven;
 static FILE lcdout = {0} ;  // LCD FILE structure
 
 // LCD character writer
 static int lcd_putchar(char ch, FILE* stream) {
-  u8g.write(ch) ;
-  return (0) ;
+  u8g.write(ch);
+  return (0);
 }
 
-void setup() {
-  Serial.begin(57600); 
-  // setup digital pins.
-  pinMode(ledPin, OUTPUT);
-  pinMode(buttonPin, INPUT);
-  // fill in the LCD FILE structure
-  fdev_setup_stream (&lcdout, lcd_putchar, NULL, _FDEV_SETUP_WRITE);
+void EEPROM_writeDouble(int ee, double value) {
+  byte* p = (byte*)(void*)&value;
+  for (int i = 0; i < sizeof(value); i++)
+	  EEPROM.write(ee++, *p++);
 }
+
+double EEPROM_readDouble(int ee) {
+  double value = 0.0;
+  byte* p = (byte*)(void*)&value;
+  for (int i = 0; i < sizeof(value); i++)
+	  *p++ = EEPROM.read(ee++);
+  return value;
+} 
 
 
 bool gpsGetData(void) {
@@ -66,71 +71,98 @@ bool gpsGetData(void) {
   }
 }
 
+
 void noSignalGpsScreen(void) {
   u8g.setFont(u8g_font_10x20);
   u8g.drawStr(10, 32, "Wait for it");
 }
 
 
-
 void firstGpsScreen(void) {
- 
     if (fkmph > 1.0) { aDriven = aDriven + gps.distance_between(flat, flon, lastLat, lastLon); }
+    if (fkmph > 1.0) { bDriven = bDriven + gps.distance_between(flat, flon, lastLat, lastLon); }
+    if (bDriven/1000 > lastBDriven/1000) { EEPROM_writeDouble(0, bDriven/1000); }
+
     if (neverHadFix == 1) { lastLat = flat; lastLon = flon; }
     int timeZone = hour + 2;
     if (timeZone == 24) { timeZone = 0; }
     if (timeZone == 25) { timeZone = 1; }
     lastLat = flat;
     lastLon = flon;
+    lastBDriven = bDriven;   
+
+
+    u8g.drawLine(0, 8, 128, 8);
+    u8g.drawLine(0, 54, 128, 54);
+    u8g.drawLine(64, 56, 64, 64);
+    
+    u8g.setFont(u8g_font_6x12);
+    u8g.setPrintPos(4, 7);
+    fprintf(&lcdout, "%d-%02d-%02d  %02d:%02d:%02d", year, month, day, timeZone, minutes, second);
+
+    u8g.setFont(u8g_font_10x20);
+    u8g.setPrintPos(32, 28);
+    u8g.print(fkmph, 1);
+    u8g.setFont(u8g_font_6x12);
+    u8g.setPrintPos(96, 28);
+    u8g.print("km/h");
+  
+    u8g.setFont(u8g_font_6x12);
+    u8g.setPrintPos(12, 42);
+    u8g.print("A: ");
+    u8g.setPrintPos(26, 42);
+    u8g.print(aDriven/1000, 1);
+    u8g.setPrintPos(70, 42);
+    u8g.print("km");
+
+    u8g.setPrintPos(12, 52);
+    u8g.print("B: ");
+    u8g.setPrintPos(26, 52);
+    u8g.print(bDriven/1000, 1);
+    u8g.setPrintPos(70, 52);
+    u8g.print("km");
+    
+    u8g.setFont(u8g_font_6x12);
+    u8g.setPrintPos(8, 64);
+    u8g.print(falt, 1);
+    u8g.setPrintPos(48, 64);
+    u8g.print("m");
+    u8g.setPrintPos(80, 64);
+    u8g.print(fc, 1);
     u8g.setFont(u8g_font_5x7);
+    u8g.setPrintPos(112, 60);
+    u8g.print("o");
+    
+
+}
+
+
+void secondGpsScreen(void) {
+    u8g.setFont(u8g_font_6x12);
     u8g.drawStr( 0, 6, "LA");
     u8g.setPrintPos(14, 6);
     u8g.print(flat, 6);
     u8g.drawStr( 66, 6, "LO");
     u8g.setPrintPos(80, 6);
     u8g.print(flon, 6);
-
-    u8g.drawLine(0, 8, 128, 8);
-
-    u8g.drawLine(40, 8, 40, 56);
-    
-    u8g.setFont(u8g_font_6x12);
-    u8g.setPrintPos(0, 18);
-    u8g.print("Alt");
-    u8g.setPrintPos(0, 28);
-    u8g.print(falt);
-    u8g.drawLine(0, 30, 40, 30);
-    u8g.setPrintPos(0, 42);
-    u8g.print("Course");
-    u8g.setPrintPos(0, 52);
-    u8g.print(fc);
-
-    u8g.setFont(u8g_font_10x20);
-    u8g.setPrintPos(48, 28);
-    u8g.print(fkmph, 1);
-    u8g.setFont(u8g_font_6x12);
-    u8g.setPrintPos(104, 28);
-    u8g.print("km/h");
-  
-    u8g.setFont(u8g_font_6x12);
-    u8g.setPrintPos(44, 52);
-    u8g.print("A: ");
-    u8g.setPrintPos(60, 52);
-    u8g.print(aDriven/1000);
-    u8g.setPrintPos(110, 52);
-    u8g.print("km");
-    //fprintf(&lcdout, "A: %dkm", aDriven/1000);
-    
-    u8g.drawLine(0, 56, 128, 56);
-    u8g.setFont(u8g_font_5x7);
-    u8g.setPrintPos(14, 64);
-    fprintf(&lcdout, "%d-%02d-%02d  %02d:%02d:%02d", year, month, day, timeZone, minutes, second);
 }
 
 
-// program loop
-void loop(void) {  
-  u8g.firstPage();  
+void setup() {
+  bDriven = EEPROM_readDouble(0);
+  Serial.begin(57600); 
+  // setup digital pins.
+  pinMode(ledPin, OUTPUT);
+  pinMode(buttonPin, INPUT);
+  // fill in the LCD FILE structure
+  fdev_setup_stream (&lcdout, lcd_putchar, NULL, _FDEV_SETUP_WRITE);
+}
+
+
+void loop(void) {
+  
+  
+  u8g.firstPage();
   if (gpsGetData()) {
     do {
       firstGpsScreen();
