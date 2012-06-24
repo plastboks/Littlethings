@@ -24,7 +24,7 @@ byte month, day, hour, minutes, second, hundredths;
 float lastLat = 0.0;
 float lastLon = 0.0;
 float aDriven = 0.0;
-float bDriven, lastBDriven;
+double bDriven, lastBDriven;
 static FILE lcdout = {0} ;  // LCD FILE structure
 
 // LCD character writer
@@ -79,60 +79,64 @@ void noSignalGpsScreen(void) {
 
 
 void firstGpsScreen(void) {
-    if (fkmph > 1.0) { aDriven = aDriven + gps.distance_between(flat, flon, lastLat, lastLon); }
-    if (fkmph > 1.0) { bDriven = bDriven + gps.distance_between(flat, flon, lastLat, lastLon); }
-    if (bDriven/1000 > lastBDriven/1000) { EEPROM_writeDouble(0, bDriven/1000); }
-
-    if (neverHadFix == 1) { lastLat = flat; lastLon = flon; }
-    int timeZone = hour + 2;
-    if (timeZone == 24) { timeZone = 0; }
-    if (timeZone == 25) { timeZone = 1; }
-    lastLat = flat;
-    lastLon = flon;
-    lastBDriven = bDriven;   
-
-
-    u8g.drawLine(0, 8, 128, 8);
-    u8g.drawLine(0, 54, 128, 54);
-    u8g.drawLine(64, 56, 64, 64);
     
-    u8g.setFont(u8g_font_6x12);
-    u8g.setPrintPos(4, 7);
-    fprintf(&lcdout, "%d-%02d-%02d  %02d:%02d:%02d", year, month, day, timeZone, minutes, second);
+  if (neverHadFix == 1) { lastLat = flat; lastLon = flon; }
+  if (fkmph > 1.0) { aDriven = aDriven + gps.distance_between(flat, flon, lastLat, lastLon); }
+  if (fkmph > 1.0) { bDriven = bDriven + gps.distance_between(flat, flon, lastLat, lastLon); }
+  if (bDriven/1000 > lastBDriven/1000) { EEPROM_writeDouble(0, bDriven/1000); }
 
-    u8g.setFont(u8g_font_10x20);
-    u8g.setPrintPos(32, 28);
-    u8g.print(fkmph, 1);
-    u8g.setFont(u8g_font_6x12);
-    u8g.setPrintPos(96, 28);
-    u8g.print("km/h");
   
-    u8g.setFont(u8g_font_6x12);
-    u8g.setPrintPos(12, 42);
-    u8g.print("A: ");
-    u8g.setPrintPos(26, 42);
-    u8g.print(aDriven/1000, 1);
-    u8g.setPrintPos(70, 42);
-    u8g.print("km");
+  int timeZone = hour + 2;
+  if (timeZone == 24) { timeZone = 0; }
+  if (timeZone == 25) { timeZone = 1; }
+  lastLat = flat;
+  lastLon = flon;
+  lastBDriven = bDriven;   
 
-    u8g.setPrintPos(12, 52);
-    u8g.print("B: ");
-    u8g.setPrintPos(26, 52);
-    u8g.print(bDriven/1000, 1);
-    u8g.setPrintPos(70, 52);
-    u8g.print("km");
-    
-    u8g.setFont(u8g_font_6x12);
-    u8g.setPrintPos(8, 64);
-    u8g.print(falt, 1);
-    u8g.setPrintPos(48, 64);
-    u8g.print("m");
-    u8g.setPrintPos(80, 64);
-    u8g.print(fc, 1);
-    u8g.setFont(u8g_font_5x7);
-    u8g.setPrintPos(112, 60);
-    u8g.print("o");
-    
+
+  u8g.drawLine(0, 8, 128, 8);
+  u8g.drawLine(0, 54, 128, 54);
+  u8g.drawLine(64, 56, 64, 64);
+  
+  u8g.setFont(u8g_font_6x12);
+  u8g.setPrintPos(4, 7);
+  fprintf(&lcdout, "%d-%02d-%02d  %02d:%02d:%02d", year, month, day, timeZone, minutes, second);
+
+  u8g.setFont(u8g_font_10x20);
+  u8g.setPrintPos(32, 28);
+  u8g.print(fkmph, 1);
+  u8g.setFont(u8g_font_6x12);
+  u8g.setPrintPos(96, 28);
+  u8g.print("km/h");
+
+  u8g.setFont(u8g_font_6x12);
+  u8g.setPrintPos(12, 42);
+  u8g.print("A: ");
+  u8g.setPrintPos(26, 42);
+  u8g.print(aDriven/1000, 1);
+  u8g.setPrintPos(70, 42);
+  u8g.print("km");
+
+  u8g.setPrintPos(12, 52);
+  u8g.print("B: ");
+  u8g.setPrintPos(26, 52);
+  u8g.print(bDriven/1000, 1);
+  u8g.setPrintPos(70, 52);
+  u8g.print("km");
+  
+  u8g.setFont(u8g_font_6x12);
+  u8g.setPrintPos(8, 64);
+  u8g.print(falt, 1);
+  u8g.setPrintPos(48, 64);
+  u8g.print("m");
+  u8g.setPrintPos(80, 64);
+  u8g.print(fc, 1);
+  u8g.setFont(u8g_font_5x7);
+  u8g.setPrintPos(112, 60);
+  u8g.print("o");
+  
+  
+  neverHadFix = 0;
 
 }
 
