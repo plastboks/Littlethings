@@ -23,9 +23,11 @@ int year, satellites, hdop;
 byte month, day, hour, minutes, second, hundredths;
 float lastLat = 0.0;
 float lastLon = 0.0;
-float aDriven = 0.0;
+double aDriven = 0;
 double bDriven, lastBDriven;
 static FILE lcdout = {0} ;  // LCD FILE structure
+
+
 
 // LCD character writer
 static int lcd_putchar(char ch, FILE* stream) {
@@ -83,8 +85,7 @@ void firstGpsScreen(void) {
   if (neverHadFix == 1) { lastLat = flat; lastLon = flon; }
   if (fkmph > 1.0) { aDriven = aDriven + gps.distance_between(flat, flon, lastLat, lastLon); }
   if (fkmph > 1.0) { bDriven = bDriven + gps.distance_between(flat, flon, lastLat, lastLon); }
-  if (bDriven/1000 > lastBDriven/1000) { EEPROM_writeDouble(0, bDriven/1000); }
-
+  if (bDriven > lastBDriven) { EEPROM_writeDouble(10, bDriven); }
   
   int timeZone = hour + 2;
   if (timeZone == 24) { timeZone = 0; }
@@ -153,7 +154,7 @@ void secondGpsScreen(void) {
 
 
 void setup() {
-  bDriven = EEPROM_readDouble(0);
+  bDriven = EEPROM_readDouble(10);
   Serial.begin(57600); 
   // setup digital pins.
   pinMode(ledPin, OUTPUT);
