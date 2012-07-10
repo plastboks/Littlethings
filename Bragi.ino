@@ -23,8 +23,9 @@ int year, satellites, hdop;
 byte month, day, hour, minutes, second, hundredths;
 float lastLat = 0.0;
 float lastLon = 0.0;
-double aDriven = 0;
-double bDriven, lastBDriven;
+float aDriven = 0.0;
+float bDriven = 0.0;
+float lastBDriven;
 static FILE lcdout = {0} ;  // LCD FILE structure
 
 
@@ -76,7 +77,8 @@ bool gpsGetData(void) {
 
 void noSignalGpsScreen(void) {
   u8g.setFont(u8g_font_10x20);
-  u8g.drawStr(10, 32, "Wait for it");
+  u8g.drawStr(10, 28, "Wait for it");
+  u8g.drawStr(48, 48, "...");
 }
 
 
@@ -114,14 +116,14 @@ void firstGpsScreen(void) {
   u8g.setPrintPos(12, 42);
   u8g.print("A: ");
   u8g.setPrintPos(26, 42);
-  u8g.print(aDriven/1000, 1);
+  u8g.print(aDriven/1000, 2);
   u8g.setPrintPos(70, 42);
   u8g.print("km");
 
   u8g.setPrintPos(12, 52);
   u8g.print("B: ");
   u8g.setPrintPos(26, 52);
-  u8g.print(bDriven/1000, 1);
+  u8g.print(bDriven/1000, 2);
   u8g.setPrintPos(70, 52);
   u8g.print("km");
   
@@ -138,7 +140,6 @@ void firstGpsScreen(void) {
   
   
   neverHadFix = 0;
-
 }
 
 
@@ -165,8 +166,6 @@ void setup() {
 
 
 void loop(void) {
-  
-  
   u8g.firstPage();
   if (gpsGetData()) {
     do {
