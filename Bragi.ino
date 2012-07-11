@@ -116,14 +116,14 @@ void firstGpsScreen(void) {
   u8g.setPrintPos(12, 42);
   u8g.print("A: ");
   u8g.setPrintPos(26, 42);
-  u8g.print(aDriven/1000, 2);
+  u8g.print(aDriven/1000, 1);
   u8g.setPrintPos(70, 42);
   u8g.print("km");
 
   u8g.setPrintPos(12, 52);
   u8g.print("B: ");
   u8g.setPrintPos(26, 52);
-  u8g.print(bDriven/1000, 2);
+  u8g.print(bDriven/1000, 1);
   u8g.setPrintPos(70, 52);
   u8g.print("km");
   
