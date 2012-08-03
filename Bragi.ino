@@ -17,9 +17,9 @@ bool newData = false;
 long previousMillis = 0;
 long interval = 500;
 int switchTemplate = EEPROM.read(1);
-float flat, flon, fkmph, falt, fc;
+float flat, flon, fkmph, falt, fc, avgspeed, avgspeedH;
 unsigned long age, fix_age, speed;
-int year, satellites, hdop;
+int year, satellites, hdop, i;
 byte month, day, hour, minutes, second, hundredths;
 float lastLat = 0.0;
 float lastLon = 0.0;
@@ -83,7 +83,10 @@ void noSignalGpsScreen(void) {
 
 
 void firstGpsScreen(void) {
-    
+  i++;
+  avgspeedH = fkmph + avgspeedH;
+  avgspeed = avgspeedH / i;
+  
   if (neverHadFix == 1) { lastLat = flat; lastLon = flon; }
   if (fkmph > 1.0) { aDriven = aDriven + gps.distance_between(flat, flon, lastLat, lastLon); }
   if (fkmph > 1.0) { bDriven = bDriven + gps.distance_between(flat, flon, lastLat, lastLon); }
@@ -95,7 +98,6 @@ void firstGpsScreen(void) {
   lastLat = flat;
   lastLon = flon;
   lastBDriven = bDriven;   
-
 
   u8g.drawLine(0, 8, 128, 8);
   u8g.drawLine(0, 54, 128, 54);
@@ -137,7 +139,6 @@ void firstGpsScreen(void) {
   u8g.setFont(u8g_font_5x7);
   u8g.setPrintPos(112, 60);
   u8g.print("o");
-  
   
   neverHadFix = 0;
 }
