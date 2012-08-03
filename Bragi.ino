@@ -4,7 +4,7 @@
 #include <stdarg.h>
 
 TinyGPS gps;
-U8GLIB_ST7920_128X64 u8g(9, 8, 17, U8G_PIN_NONE); 
+U8GLIB_ST7920_128X64 u8g(9, 10, 17, U8G_PIN_NONE); 
 
 // Hardware pins.
 const int ledPin = 13;
@@ -87,7 +87,7 @@ void firstGpsScreen(void) {
   if (neverHadFix == 1) { lastLat = flat; lastLon = flon; }
   if (fkmph > 1.0) { aDriven = aDriven + gps.distance_between(flat, flon, lastLat, lastLon); }
   if (fkmph > 1.0) { bDriven = bDriven + gps.distance_between(flat, flon, lastLat, lastLon); }
-  if (bDriven > lastBDriven) { EEPROM_writeDouble(10, bDriven); }
+  //if (bDriven > lastBDriven) { EEPROM_writeDouble(10, bDriven); }
   
   int timeZone = hour + 2;
   if (timeZone == 24) { timeZone = 0; }
@@ -155,7 +155,7 @@ void secondGpsScreen(void) {
 
 
 void setup() {
-  bDriven = EEPROM_readDouble(10);
+  //bDriven = EEPROM_readDouble(10);
   Serial.begin(57600); 
   // setup digital pins.
   pinMode(ledPin, OUTPUT);
