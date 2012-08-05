@@ -7,8 +7,6 @@ TinyGPS gps;
 U8GLIB_ST7920_128X64 u8g(9, 10, 17, U8G_PIN_NONE); 
 
 // Hardware pins.
-const int ledPin = 13;
-const int buttonPin = 5;
 const int mainsPower = 8;
 
 // Global variables.
@@ -19,7 +17,6 @@ long faultCounter = 50;
 bool newData = false;
 long previousMillis = 0;
 long interval = 500;
-int switchTemplate = EEPROM.read(1);
 float flat, flon, fkmph, falt, fc, avgspeed, avgspeedH;
 unsigned long age, fix_age, speed;
 int year, satellites, hdop, i;
@@ -32,18 +29,19 @@ float lastBDriven;
 static FILE lcdout = {0} ;  // LCD FILE structure
 
 
-
 // LCD character writer
 static int lcd_putchar(char ch, FILE* stream) {
   u8g.write(ch);
   return (0);
 }
 
+
 void EEPROM_writeDouble(int ee, double value) {
   byte* p = (byte*)(void*)&value;
   for (int i = 0; i < sizeof(value); i++)
 	  EEPROM.write(ee++, *p++);
 }
+
 
 double EEPROM_readDouble(int ee) {
   double value = 0.0;
@@ -53,11 +51,23 @@ double EEPROM_readDouble(int ee) {
   return value;
 } 
 
+
 void averageSpeed(void) {
   i++;
   avgspeedH = fkmph + avgspeedH;
   avgspeed = avgspeedH / i;
 }
+
+
+void odoMeter(void) {
+  if (neverHadFix == 1) { lastLat = flat; lastLon = flon; }
+  if (fkmph > 1.0) { aDriven = aDriven + gps.distance_between(flat, flon, lastLat, lastLon); }
+  if (fkmph > 1.0) { bDriven = bDriven + gps.distance_between(flat, flon, lastLat, lastLon); }
+  lastLat = flat;
+  lastLon = flon;
+  lastBDriven = bDriven;   
+}
+
 
 bool gpsGetData(void) {
   faultCounter ++;
@@ -76,6 +86,7 @@ bool gpsGetData(void) {
     satellites = gps.satellites();
     hdop = gps.hdop();    
     gps.crack_datetime(&year, &month, &day, &hour, &minutes, &second, &hundredths, &fix_age);
+    odoMeter();
     averageSpeed();
     return true;
   } else {
@@ -95,7 +106,6 @@ void drawRotator(void) {
 void powerLostScreen(void) {
   if (shutdownState == 0) {
     EEPROM_writeDouble(10, bDriven);
-    
     shutdownState = 1;
     u8g.setFont(u8g_font_10x20);
     u8g.drawStr(10, 28, "Writing");
@@ -116,17 +126,10 @@ void noSignalGpsScreen(void) {
 
 
 void firstGpsScreen(void) {
-  
-  if (neverHadFix == 1) { lastLat = flat; lastLon = flon; }
-  if (fkmph > 1.0) { aDriven = aDriven + gps.distance_between(flat, flon, lastLat, lastLon); }
-  if (fkmph > 1.0) { bDriven = bDriven + gps.distance_between(flat, flon, lastLat, lastLon); }
-  
+    
   int timeZone = hour + 2;
   if (timeZone == 24) { timeZone = 0; }
   if (timeZone == 25) { timeZone = 1; }
-  lastLat = flat;
-  lastLon = flon;
-  lastBDriven = bDriven;   
 
   u8g.drawLine(0, 8, 128, 8);
   //u8g.drawLine(0, 54, 128, 54);
@@ -191,14 +194,12 @@ void secondGpsScreen(void) {
 
 
 void setup() {
-  bDriven = EEPROM_readDouble(10);
   Serial.begin(57600); 
   // setup digital pins.
-  pinMode(ledPin, OUTPUT);
-  pinMode(buttonPin, INPUT);
   pinMode(mainsPower, INPUT);
   // fill in the LCD FILE structure
   fdev_setup_stream (&lcdout, lcd_putchar, NULL, _FDEV_SETUP_WRITE);
+  bDriven = EEPROM_readDouble(10);
 }
 
 
