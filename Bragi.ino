@@ -25,7 +25,9 @@ float lastLat = 0.0;
 float lastLon = 0.0;
 float aDriven = 0.0;
 float bDriven = 0.0;
-float lastBDriven;
+float cDriven = 0.0;
+float dDriven = 0.0;
+float lastBDriven, lastCDriven, lastDDriven;
 static FILE lcdout = {0} ;  // LCD FILE structure
 
 
@@ -63,9 +65,13 @@ void odoMeter(void) {
   if (neverHadFix == 1) { lastLat = flat; lastLon = flon; }
   if (fkmph > 1.0) { aDriven = aDriven + gps.distance_between(flat, flon, lastLat, lastLon); }
   if (fkmph > 1.0) { bDriven = bDriven + gps.distance_between(flat, flon, lastLat, lastLon); }
+  if (fkmph > 1.0) { cDriven = cDriven + gps.distance_between(flat, flon, lastLat, lastLon); }
+  if (fkmph > 1.0) { dDriven = cDriven + gps.distance_between(flat, flon, lastLat, lastLon); }
   lastLat = flat;
   lastLon = flon;
-  lastBDriven = bDriven;   
+  lastBDriven = bDriven;
+  lastCDriven = cDriven;
+  lastDDriven = dDriven;
 }
 
 
@@ -106,6 +112,8 @@ void drawRotator(void) {
 void powerLostScreen(void) {
   if (shutdownState == 0) {
     EEPROM_writeDouble(10, bDriven);
+    EEPROM_writeDouble(20, cDriven);
+    EEPROM_writeDouble(30, dDriven);
     shutdownState = 1;
     u8g.setFont(u8g_font_10x20);
     u8g.drawStr(10, 28, "Writing");
@@ -132,7 +140,7 @@ void firstGpsScreen(void) {
   if (timeZone == 25) { timeZone = 1; }
 
   u8g.drawLine(0, 8, 128, 8);
-  //u8g.drawLine(0, 54, 128, 54);
+  u8g.drawLine(0, 44, 128, 44);
   
   u8g.setFont(u8g_font_6x12);
   u8g.setPrintPos(4, 7);
@@ -147,21 +155,29 @@ void firstGpsScreen(void) {
   u8g.print(avgspeed, 1);
 
   u8g.setFont(u8g_font_6x12);
+  
+  u8g.setPrintPos(24, 43);
+  u8g.print("Odometer (km)");
+  
   u8g.setPrintPos(4, 54);
   u8g.print("A: ");
-  u8g.setPrintPos(18, 54);
+  u8g.setPrintPos(16, 54);
   u8g.print(aDriven/1000, 1);
 
   u8g.setPrintPos(4, 64);
   u8g.print("B: ");
-  u8g.setPrintPos(18, 64);
+  u8g.setPrintPos(16, 64);
   u8g.print(bDriven/1000, 1);
 
   u8g.setPrintPos(64, 54);
   u8g.print("C: ");
+  u8g.setPrintPos(76, 54);
+  u8g.print(cDriven/1000, 1);
   
   u8g.setPrintPos(64, 64);
   u8g.print("D: ");  
+  u8g.setPrintPos(76, 64);
+  u8g.print(dDriven/1000, 1);
   
   neverHadFix = 0;
 }
@@ -200,6 +216,8 @@ void setup() {
   // fill in the LCD FILE structure
   fdev_setup_stream (&lcdout, lcd_putchar, NULL, _FDEV_SETUP_WRITE);
   bDriven = EEPROM_readDouble(10);
+  cDriven = EEPROM_readDouble(20);
+  dDriven = EEPROM_readDouble(30); 
 }
 
 
