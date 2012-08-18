@@ -2,9 +2,20 @@
 #include <TinyGPS.h>
 #include <EEPROM.h>
 #include <stdarg.h>
+#include "ircodes.h"
 
 TinyGPS gps;
 U8GLIB_ST7920_128X64 u8g(9, 10, 17, U8G_PIN_NONE); 
+
+// IR settings
+#define IRpin_PIN      PIND
+#define IRpin          2
+#define MAXPULSE 65000
+#define NUMPULSES 50
+#define RESOLUTION 20 
+#define FUZZINESS 20
+uint16_t pulses[NUMPULSES][2]; 
+uint8_t currentpulse = 0;
 
 // Hardware pins.
 const int mainsPower = 8;
@@ -37,14 +48,14 @@ static int lcd_putchar(char ch, FILE* stream) {
   return (0);
 }
 
-
+// eeprom write float 
 void EEPROM_writeDouble(int ee, double value) {
   byte* p = (byte*)(void*)&value;
   for (int i = 0; i < sizeof(value); i++)
 	  EEPROM.write(ee++, *p++);
 }
 
-
+// eeprom read float 
 double EEPROM_readDouble(int ee) {
   double value = 0.0;
   byte* p = (byte*)(void*)&value;
@@ -53,14 +64,55 @@ double EEPROM_readDouble(int ee) {
   return value;
 } 
 
+// ir compare signals 
+boolean IRcompare(int numpulses, int Signal[], int refsize) {
+  int count = min(numpulses,refsize);
+  for (int i=0; i< count-1; i++) {
+    int oncode = pulses[i][1] * RESOLUTION / 10;
+    int offcode = pulses[i+1][0] * RESOLUTION / 10;
+    if ( ! (abs(oncode - Signal[i*2 + 0]) <= (Signal[i*2 + 0] * FUZZINESS / 100)) ) {  return false; }
+    if ( ! (abs(offcode - Signal[i*2 + 1]) <= (Signal[i*2 + 1] * FUZZINESS / 100)) ) { return false; }
+  }
+  return true;
+}
 
+// listen for ir signals
+int listenForIR(void) {
+  currentpulse = 0;
+  
+  while (1) {
+    uint16_t highpulse, lowpulse;  // temporary storage timing
+    highpulse = lowpulse = 0; // start out with no pulse length
+    
+    while (IRpin_PIN & (1 << IRpin)) {
+       highpulse++;
+       delayMicroseconds(RESOLUTION);
+       if (((highpulse >= MAXPULSE) && (currentpulse != 0))|| currentpulse == NUMPULSES) {
+         return currentpulse;
+       }
+    }
+    pulses[currentpulse][0] = highpulse;
+  
+    while (! (IRpin_PIN & _BV(IRpin))) {
+       lowpulse++;
+       delayMicroseconds(RESOLUTION);
+        if (((lowpulse >= MAXPULSE)  && (currentpulse != 0))|| currentpulse == NUMPULSES) {
+         return currentpulse;
+       }
+    }
+    pulses[currentpulse][1] = lowpulse;
+    currentpulse++;
+  }
+}
+
+// average Speed calculate 
 void averageSpeed(void) {
   i++;
   avgspeedH = fkmph + avgspeedH;
   avgspeed = avgspeedH / i;
 }
 
-
+// odomoter 
 void odoMeter(void) {
   if (neverHadFix == 1) { lastLat = flat; lastLon = flon; }
   if (fkmph > 1.0) { aDriven = aDriven + gps.distance_between(flat, flon, lastLat, lastLon); }
@@ -209,6 +261,8 @@ void secondGpsScreen(void) {
 }
 
 
+
+
 void setup() {
   Serial.begin(57600); 
   // setup digital pins.
@@ -222,6 +276,14 @@ void setup() {
 
 
 void loop(void) {
+  
+  int numberpulses;
+  numberpulses = listenForIR();
+  
+  if (IRcompare(numberpulses, irQuit,sizeof(irQuit)/4)) {
+    Serial.println("Quit");
+  }
+  
   if (digitalRead(mainsPower) == HIGH) {
     shutdownState = 0;
     u8g.firstPage();
