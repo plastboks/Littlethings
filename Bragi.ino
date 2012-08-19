@@ -3,9 +3,13 @@
 #include <EEPROM.h>
 #include <stdarg.h>
 #include "ircodes.h"
+#include <SoftwareSerial.h>
+#include <OBD.h>
 
 TinyGPS gps;
 U8GLIB_ST7920_128X64 u8g(9, 10, 17, U8G_PIN_NONE); 
+SoftwareSerial bluetoothSerial(3, 4); // RX, TX
+COBD obd;
 
 // IR settings
 #define IRpin_PIN      PIND
@@ -25,9 +29,9 @@ uint8_t draw_state = 0;
 int neverHadFix = 1;
 int shutdownState = 0;
 long faultCounter = 50;
-bool newData = false;
+bool newGpsData = false;
 long previousMillis = 0;
-long interval = 500;
+long interval = 1000;
 float flat, flon, fkmph, falt, fc, avgspeed, avgspeedH;
 unsigned long age, fix_age, speed;
 int year, satellites, hdop, i;
@@ -48,12 +52,14 @@ static int lcd_putchar(char ch, FILE* stream) {
   return (0);
 }
 
+
 // eeprom write float 
 void EEPROM_writeDouble(int ee, double value) {
   byte* p = (byte*)(void*)&value;
   for (int i = 0; i < sizeof(value); i++)
 	  EEPROM.write(ee++, *p++);
 }
+
 
 // eeprom read float 
 double EEPROM_readDouble(int ee) {
@@ -63,6 +69,23 @@ double EEPROM_readDouble(int ee) {
 	  *p++ = EEPROM.read(ee++);
   return value;
 } 
+
+
+// read from eeprom 
+void readFromEEprom(void) {
+  bDriven = EEPROM_readDouble(10);
+  cDriven = EEPROM_readDouble(20);
+  dDriven = EEPROM_readDouble(30); 
+}
+
+
+// save to eeprom
+void saveToEEprom(void) {
+  EEPROM_writeDouble(10, bDriven);
+  EEPROM_writeDouble(20, cDriven);
+  EEPROM_writeDouble(30, dDriven);
+}
+
 
 // ir compare signals 
 boolean IRcompare(int numpulses, int Signal[], int refsize) {
@@ -76,15 +99,15 @@ boolean IRcompare(int numpulses, int Signal[], int refsize) {
   return true;
 }
 
+
 // listen for ir signals
 int listenForIR(void) {
   currentpulse = 0;
   
-  while (1) {
-    uint16_t highpulse, lowpulse;  // temporary storage timing
-    highpulse = lowpulse = 0; // start out with no pulse length
-    
-    while (IRpin_PIN & (1 << IRpin)) {
+  for ( unsigned long start = millis(); millis() - start < 200; ) {
+    uint16_t highpulse, lowpulse; 
+    highpulse = lowpulse = 0;
+    if (IRpin_PIN & (1 << IRpin)) {
        highpulse++;
        delayMicroseconds(RESOLUTION);
        if (((highpulse >= MAXPULSE) && (currentpulse != 0))|| currentpulse == NUMPULSES) {
@@ -92,8 +115,7 @@ int listenForIR(void) {
        }
     }
     pulses[currentpulse][0] = highpulse;
-  
-    while (! (IRpin_PIN & _BV(IRpin))) {
+    if (! (IRpin_PIN & _BV(IRpin))) {
        lowpulse++;
        delayMicroseconds(RESOLUTION);
         if (((lowpulse >= MAXPULSE)  && (currentpulse != 0))|| currentpulse == NUMPULSES) {
@@ -103,7 +125,9 @@ int listenForIR(void) {
     pulses[currentpulse][1] = lowpulse;
     currentpulse++;
   }
+  
 }
+
 
 // average Speed calculate 
 void averageSpeed(void) {
@@ -111,6 +135,7 @@ void averageSpeed(void) {
   avgspeedH = fkmph + avgspeedH;
   avgspeed = avgspeedH / i;
 }
+
 
 // odomoter 
 void odoMeter(void) {
@@ -127,34 +152,45 @@ void odoMeter(void) {
 }
 
 
+// scan for gps data on serial input
 bool gpsGetData(void) {
   faultCounter ++;
-  for (unsigned long start = millis(); millis() - start < 500;) {
-    while (Serial.available()) {
-      if (gps.encode(Serial.read()))
+  for (unsigned long start = millis(); millis() - start < 50;) {
+    if (Serial.available()) {
+      char c = Serial.read();
+      if (gps.encode(c)) {
+        // reset faulcounter
         faultCounter = 0;
+      }
     }
   }
-  if (faultCounter < 2) {
-    gps.f_get_position(&flat, &flon, &age);
-    fkmph = gps.f_speed_kmph();
-    falt = gps.f_altitude();
-    fc = gps.f_course();
-    const char *cardinal = gps.cardinal(fc);
-    satellites = gps.satellites();
-    hdop = gps.hdop();    
-    gps.crack_datetime(&year, &month, &day, &hour, &minutes, &second, &hundredths, &fix_age);
-    odoMeter();
-    averageSpeed();
-    return true;
+  if (faultCounter < 10) {
+    setGpsData();
+    newGpsData = true;
   } else {
-    return false; 
+    newGpsData = false;
   }
 }
 
 
+// setGpsData to variables
+void setGpsData(void) {
+  gps.f_get_position(&flat, &flon, &age);
+  fkmph = gps.f_speed_kmph();
+  falt = gps.f_altitude();
+  fc = gps.f_course();
+  const char *cardinal = gps.cardinal(fc);
+  satellites = gps.satellites();
+  hdop = gps.hdop();    
+  gps.crack_datetime(&year, &month, &day, &hour, &minutes, &second, &hundredths, &fix_age);
+  odoMeter();
+  averageSpeed();
+}
+
+
+// main screen rotator
 void drawRotator(void) {
-  switch(draw_state >> 7) {
+  switch(draw_state) {
     case 0: firstGpsScreen(); break;
     case 1: secondGpsScreen(); break;
   }
@@ -163,9 +199,7 @@ void drawRotator(void) {
 
 void powerLostScreen(void) {
   if (shutdownState == 0) {
-    EEPROM_writeDouble(10, bDriven);
-    EEPROM_writeDouble(20, cDriven);
-    EEPROM_writeDouble(30, dDriven);
+    saveToEEprom();
     shutdownState = 1;
     u8g.setFont(u8g_font_10x20);
     u8g.drawStr(10, 28, "Writing");
@@ -196,7 +230,7 @@ void firstGpsScreen(void) {
   
   u8g.setFont(u8g_font_6x12);
   u8g.setPrintPos(4, 7);
-  fprintf(&lcdout, "%d-%02d-%02d  %02d:%02d:%02d", year, month, day, timeZone, minutes, second);
+  fprintf(&lcdout, "%d-%02d-%02d    %02d:%02d", year, month, day, timeZone, minutes);
 
   u8g.setFont(u8g_font_10x20);
   u8g.setPrintPos(6, 28);
@@ -261,54 +295,58 @@ void secondGpsScreen(void) {
 }
 
 
-
-
 void setup() {
-  Serial.begin(57600); 
+  Serial.begin(57600);
+  bluetoothSerial.begin(9600);
   // setup digital pins.
   pinMode(mainsPower, INPUT);
   // fill in the LCD FILE structure
   fdev_setup_stream (&lcdout, lcd_putchar, NULL, _FDEV_SETUP_WRITE);
-  bDriven = EEPROM_readDouble(10);
-  cDriven = EEPROM_readDouble(20);
-  dDriven = EEPROM_readDouble(30); 
+  readFromEEprom();
 }
 
 
 void loop(void) {
+
+  unsigned long currentMillis = millis();
+  gpsGetData();
   
-  int numberpulses;
-  numberpulses = listenForIR();
-  
-  if (IRcompare(numberpulses, irQuit,sizeof(irQuit)/4)) {
-    Serial.println("Quit");
-  }
-  
-  if (digitalRead(mainsPower) == HIGH) {
-    shutdownState = 0;
-    u8g.firstPage();
-    if (gpsGetData()) {
+  if(currentMillis - previousMillis > interval) {
+    if (digitalRead(mainsPower) == HIGH) {
+      shutdownState = 0;
+      u8g.firstPage();
+      if (newGpsData) {
+        do {
+          drawRotator();
+        } while(u8g.nextPage());
+      } else {
+        do {
+          noSignalGpsScreen();
+        } while(u8g.nextPage());
+      }
+    }
+    if (digitalRead(mainsPower) == LOW) {
+      u8g.firstPage();
       do {
-        drawRotator();
-      } while(u8g.nextPage());
-    } else {
-      do {
-        noSignalGpsScreen();
+        powerLostScreen();
       } while(u8g.nextPage());
     }
   }
-  if (digitalRead(mainsPower) == LOW) {
-    u8g.firstPage();
-    do {
-      powerLostScreen();
-    } while(u8g.nextPage());
+
+  int numberpulses;
+  numberpulses = listenForIR();
+  
+  if (IRcompare(numberpulses, irNext,sizeof(irQuit)/4)) {
+    draw_state++;
   }
   
-  draw_state++;
-  if ( draw_state >= 32*8 ) {
+  if (IRcompare(numberpulses, irPrev,sizeof(irQuit)/4)) {
+    draw_state--;
+  }
+  
+  if ( draw_state >= 2 ) {
     draw_state = 0;
   }
-  
-  delay(50);
+    
 
 }
