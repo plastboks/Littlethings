@@ -13,6 +13,8 @@
 
 #define DEMODELAY       1000
 
+#define VERSION         0001
+
 unsigned int maxX = 160;  // LCD x-resolution
 unsigned int maxY = 128;  // LCD y-resolution
 unsigned char i2cAddress = 0x46;  // LCD module I2C address
@@ -26,16 +28,24 @@ void setup() {
   delay(500);
   Wire.begin();  
   lcd.init();
-  lcd.clear();
+}
+
+void splash() {
+   lcd.setColor(BLACK);
+   lcd.fontType(FONT_MEDIUM);
+   lcd.setColor(WHITE);
+   lcd.cursor(15, 20);
+   lcd.print("Twitter Display");
+   
+   lcd.fontType(FONT_SMALL);
+   lcd.cursor(20, 100);
+   lcd.print("Version: 0.0.1 Alpha");
 }
 
 void loop() {
   
-   lcd.setColor(BLACK);
-   lcd.fontType(FONT_MEDIUM);
-   lcd.setColor(WHITE);
-   lcd.cursor(10,10);
-   lcd.print("Twitter Display");
+   splash();
+   delay(50);
 
 }
 
