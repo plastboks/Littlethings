@@ -10,6 +10,10 @@
 #define YELLOW          0xFFE0  
 #define WHITE           0xFFFF
 
+int blueLED = 9;
+int greenLED = 10;
+int redLED = 11;
+
 unsigned int maxX = 160;  // LCD x-resolution
 unsigned int maxY = 128;  // LCD y-resolution
 unsigned char i2cAddress = 0x46;  // LCD module I2C address
@@ -17,24 +21,38 @@ unsigned char i2cAddress = 0x46;  // LCD module I2C address
 unsigned int line = 2;
 String inputString = "";
 boolean stringComplete = false;
+boolean byLine = false;
 
 GLCDI2C lcd = GLCDI2C(maxX, maxY, i2cAddress);
 
 void setup() {
+  pinMode(blueLED, OUTPUT);
+  pinMode(greenLED, OUTPUT);
+  pinMode(redLED, OUTPUT);
+  analogWrite(blueLED, 255);
+  analogWrite(greenLED, 255);
+  analogWrite(redLED, 255);
   Serial.begin(9600);
   delay(500);
   Wire.begin();  
   lcd.init();
 }
 
-void clearScreen() {
+void LEDon() {
+  analogWrite(blueLED, 127);
+}
+
+void LEDoff() {
+  analogWrite(blueLED, 255);
+}
+
+void LCDclearScreen() {
   line = 2;
   lcd.setColor(BLACK);
   lcd.clear();
 }
 
-
-void splash() {
+void LCDsplash() {
   lcd.setColor(BLACK);
   lcd.fontType(FONT_MEDIUM);
   lcd.setColor(WHITE);
@@ -47,8 +65,7 @@ void splash() {
 }
 
 
-void mainPage(String string) {
-
+void LCDmainPage(String string) {
   lcd.setColor(BLACK);
   lcd.fontType(FONT_SMALL);
   lcd.setColor(WHITE);
@@ -57,20 +74,29 @@ void mainPage(String string) {
   lcd.println(string);
   
   line += 12;
-  if (line > 112) {
-    clearScreen();
+  if (line > 100) {
+    LCDclearScreen();
   }
-  
+}
+
+void LCDbyLine(String string) {
+  lcd.cursor(4, 128);
+  lcd.println(string);
 }
 
 void loop() {
   if (millis() / 1000 < 2) {
-    splash();
+    LCDsplash();
   }
   if (stringComplete) {
-    mainPage(inputString);
+    LCDmainPage(inputString);
     inputString = "";
     stringComplete = false;
+  }
+  if (byLine) {
+    LCDbyLine(inputString);
+    inputString = "";
+    byLine = false;
   }
   delay(50);
 }
@@ -78,15 +104,19 @@ void loop() {
 
 void serialEvent() {
   while (Serial.available()) {
-    // get the new byte:
     char inChar = (char)Serial.read(); 
-    // add it to the inputString:
     inputString += inChar;
-    // if the incoming character is a newline, set a flag
-    // so the main loop can do something about it:
-    if (inputString == "TweenoLCD:CLEAR") {
+
+    if (inputString == "TweenoLCD::CLEAR") {
       inputString = "";
-      clearScreen();
+      LEDon();
+      LCDclearScreen();
+    }
+    if (inputString == "TweenoLCD::BYLINE") {
+      byLine = true;
+    }
+    if (inputString == "TweenoLCD::END") {
+      LEDoff();
     }
     if (inChar == '\n') {
       stringComplete = true;
