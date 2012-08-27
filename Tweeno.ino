@@ -39,11 +39,17 @@ void setup() {
 }
 
 void LEDon() {
-  analogWrite(blueLED, 220);
+  for ( int fadeValue = 255 ; fadeValue >= 200; fadeValue -=1 ) {
+    analogWrite(blueLED, fadeValue);
+    delay(15);
+  }
 }
 
 void LEDoff() {
-  analogWrite(blueLED, 255);
+  for ( int fadeValue = 200 ; fadeValue <= 255; fadeValue +=1 ) {
+    analogWrite(blueLED, fadeValue);
+    delay(15);
+  }
 }
 
 void LCDclearScreen() {
@@ -61,7 +67,7 @@ void LCDsplash() {
    
   lcd.fontType(FONT_SMALL);
   lcd.cursor(20, 100);
-  lcd.print("Version: 0.0.3 Alpha");
+  lcd.print("Version: 0.0.4 Alpha");
 }
 
 
