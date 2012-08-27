@@ -39,7 +39,7 @@ void setup() {
 }
 
 void LEDon() {
-  analogWrite(blueLED, 200);
+  analogWrite(blueLED, 220);
 }
 
 void LEDoff() {
@@ -61,7 +61,7 @@ void LCDsplash() {
    
   lcd.fontType(FONT_SMALL);
   lcd.cursor(20, 100);
-  lcd.print("Version: 0.0.2 Alpha");
+  lcd.print("Version: 0.0.3 Alpha");
 }
 
 
@@ -74,7 +74,7 @@ void LCDmainPage(String string) {
   lcd.println(string);
   
   line += 12;
-  if (line > 112) {
+  if (line > 128) {
     LCDclearScreen();
   }
 }
@@ -113,9 +113,11 @@ void serialEvent() {
       LCDclearScreen();
     }
     if (inputString == "TweenoLCD::BYLINE") {
+      inputString = "";
       byLine = true;
     }
     if (inputString == "TweenoLCD::END") {
+      inputString = "";
       LEDoff();
     }
     if (inChar == '\n') {
