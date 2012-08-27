@@ -32,14 +32,14 @@ void setup() {
   analogWrite(blueLED, 255);
   analogWrite(greenLED, 255);
   analogWrite(redLED, 255);
-  Serial.begin(9600);
+  Serial.begin(57600);
   delay(500);
   Wire.begin();  
   lcd.init();
 }
 
 void LEDon() {
-  analogWrite(blueLED, 127);
+  analogWrite(blueLED, 200);
 }
 
 void LEDoff() {
@@ -74,7 +74,7 @@ void LCDmainPage(String string) {
   lcd.println(string);
   
   line += 12;
-  if (line > 100) {
+  if (line > 112) {
     LCDclearScreen();
   }
 }
