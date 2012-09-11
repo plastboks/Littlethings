@@ -12,12 +12,12 @@ f = open("config.json", "r")
 config = json.loads(f.read())
 
 api = twitter.Api(
-  consumer_key=config["consumer_key"],
-  consumer_secret=config["consumer_secret"], 
-  access_token_key=config["access_token_key"], 
-  access_token_secret=config["access_token_secret"])
+  consumer_key=config["oauth"]["consumer_key"],
+  consumer_secret=config["oauth"]["consumer_secret"], 
+  access_token_key=config["oauth"]["access_token_key"], 
+  access_token_secret=config["oauth"]["access_token_secret"])
 
-ser = serial.Serial('/dev/tty.usbserial-A1016455', 57600)
+ser = serial.Serial(config["serial"]["port"], 57600)
 
 def replaceUTF(s):
   notAscii = [  ["Æ","AE"], 
@@ -50,14 +50,14 @@ while True:
     print replaceUTF(lastMessage)
     oldMessage = lastMessage
     ser.write("TweenoLCD::CLEAR")
-    time.sleep(2.5)
+    time.sleep(2)
     for line in textwrap.wrap(replaceUTF(lastMessage), 24):
       ser.write(line.strip() + "\n")
-      time.sleep(1)
+      time.sleep(0.1)
     ser.write(" \n")
-    time.sleep(1)
+    time.sleep(0.1)
     ser.write("    By @" + user[0] + '\n')
-    time.sleep(1)
+    time.sleep(0.1)
     ser.write("TweenoLCD::END")
   time.sleep(10)
 
