@@ -16,7 +16,6 @@
 
 import wx
 
-from config import Config
 
 class Dialog(wx.Dialog):
 
@@ -101,21 +100,25 @@ class Dialog(wx.Dialog):
     panel.SetSizer(sbs)
 
     buttons = wx.BoxSizer(wx.HORIZONTAL)
-    saveCloseButton = wx.Button(self, label='Save & Close')
+    saveCloseButton = wx.Button(self, label='Save and Close')
     buttons.Add(saveCloseButton, flag=wx.LEFT, border=5)
 
     vbox.Add(panel, proportion=1, flag=wx.ALL|wx.EXPAND, border=5)
     vbox.Add(buttons, flag=wx.ALIGN_CENTER|wx.TOP|wx.BOTTOM, border=10)
-
     self.SetSizer(vbox)
-
-    saveCloseButton.Bind(wx.EVT_BUTTON, self.onSave)
-
-
-  def onSave(self, event):
-    print "tjohei"
+    
+    saveCloseButton.Bind(wx.EVT_BUTTON, self.onSaveNclose)
 
 
-  def onClose(self, event):
-    self.Destroy()
+  def onSaveNclose(self, event):
+    self.parent.c.o_cs = self.o_cs.GetValue()
+    self.parent.c.o_ck = self.o_ck.GetValue()
+    self.parent.c.o_ats = self.o_ats.GetValue()
+    self.parent.c.o_atk = self.o_atk.GetValue()
+    self.parent.c.s_port = self.s_port.GetValue()
+    self.parent.c.write()
+
+    self.Close()
+
+
 

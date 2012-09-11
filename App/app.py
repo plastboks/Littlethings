@@ -51,9 +51,9 @@ class App(wx.Frame):
 
 
   def onConfig(self, event): 
-    config = configDialog.Dialog(self, title='Config')
-    config.ShowModal()
-    config.Destroy()
+    configDlg = configDialog.Dialog(self, title='Config')
+    configDlg.ShowModal()
+    configDlg.Destroy()
 
   def onClose(self, event):
     self.Destroy()
