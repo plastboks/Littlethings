@@ -46,7 +46,7 @@ class p160_128():
   def byline(self, s):
     self.s.write(" \n")
     time.sleep(self.speed)
-    self.s.write("    By @" + s + '\n')
+    self.s.write("     @" + s + '\n')
     time.sleep(self.speed)
 
   def clear(self):

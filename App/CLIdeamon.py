@@ -38,7 +38,7 @@ while True:
   user = [s.user.screen_name for s in statuses]
 
   if not message == oldMessage:
-    print functions.replaceUTF(message)
+    print functions.replaceUTF(message) + "   @" + user[0]
     oldMessage = message
     d.clear()
     d.send(functions.replaceUTF(message))
