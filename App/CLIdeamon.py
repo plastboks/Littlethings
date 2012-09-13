@@ -28,7 +28,7 @@ api = twitter.Api(
   access_token_key=c.o_atk, 
   access_token_secret=c.o_ats)
 
-t = LCD.p160_128(c.s_port, 57600)
+d = LCD.p160_128(c.s_port, 57600)
 
 oldMessage = None
 
@@ -40,11 +40,11 @@ while True:
   if not message == oldMessage:
     print functions.replaceUTF(message)
     oldMessage = message
-    t.clear()
-    t.send(functions.replaceUTF(message))
-    t.byline(user[0])
-    t.end()
+    d.clear()
+    d.send(functions.replaceUTF(message))
+    d.byline(user[0])
+    d.end()
   time.sleep(10)
 
-t.close()
+d.close()
 
