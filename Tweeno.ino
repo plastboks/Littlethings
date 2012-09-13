@@ -39,16 +39,16 @@ void setup() {
 }
 
 void LEDon() {
-  for ( int fadeValue = 255 ; fadeValue >= 200; fadeValue -=1 ) {
+  for ( int fadeValue = 255 ; fadeValue >= 1; fadeValue -=1 ) {
     analogWrite(blueLED, fadeValue);
-    delay(15);
+    delay(2);
   }
 }
 
 void LEDoff() {
-  for ( int fadeValue = 200 ; fadeValue <= 255; fadeValue +=1 ) {
+  for ( int fadeValue = 1; fadeValue <= 255; fadeValue +=1 ) {
     analogWrite(blueLED, fadeValue);
-    delay(15);
+    delay(2);
   }
 }
 
