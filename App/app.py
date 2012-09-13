@@ -8,7 +8,7 @@
 # 
 # @date: 2012-08-28
 #
-# @version: 0.0.1
+# @version: 0.0.2
 #
 # @description: Launch Tweeno app
 #

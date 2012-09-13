@@ -9,7 +9,7 @@
 # 
 # @date: 2012-09-03
 #
-# @version: 0.0.1
+# @version: 0.0.2
 #
 # @description: Tweeno config dialog
 #
