@@ -1,7 +1,3 @@
-#!/usr/bin/python
-# -*- coding: utf-8 -*-
-
-#
 # Tweeno App main file 
 #
 # @name: app.py
@@ -22,6 +18,7 @@ import config
 import configDialog
 
 class App(wx.Frame):
+  
   def __init__(self, *args, **kwargs):
     super(App, self).__init__(*args, **kwargs)
     self.c = config.Config()
@@ -30,8 +27,20 @@ class App(wx.Frame):
     self.InitUI()
 
 
-
   def InitUI(self):
+      
+    self.TabPane1 = wx.Panel(self)
+    self.column = wx.ScrolledWindow(self.TabPane1, -1, style=wx.TAB_TRAVERSAL)
+
+
+    self.menu()
+    self.properties()
+    self.layout()
+    
+    self.demoMode(self)
+
+
+  def menu(self):
 
     menuBar = wx.MenuBar()
 
@@ -42,34 +51,46 @@ class App(wx.Frame):
     menuBar.Append(self.fileMenu, "File")
     self.SetMenuBar(menuBar)
 
-    
-    pnl = wx.Panel(self)
-    vbox = wx.BoxSizer(wx.VERTICAL)
-    vbox.Add((-1, 15))
-
-    for count in range(1, 20):
-
-      tmp1 = "WordPress hack: Easily get post content by ID http://t.co/0mpCWRxc"
-      for line in textwrap.wrap(tmp1, 45):
-        vbox.Add(wx.StaticText(pnl, label=line, style=wx.ALIGN_LEFT), flag=wx.LEFT, border=10)
-      vbox.Add(wx.StaticLine(pnl, -1, size=(1,2), style=wx.LI_VERTICAL), flag=wx.EXPAND|wx.ALL, border=10)
-
-    pnl.SetSizer(vbox)
-
     self.Bind(wx.EVT_TOOL, self.onConfig, configFileMenu)
     self.Bind(wx.EVT_TOOL, self.onClose, closeFileMenu)
 
-    #self.scroll = wx.ScrolledWindow(self, -1)
-    #self.scroll.SetScrollbars(1, 1, 600, 400)
-
-    self.SetSize((300, 700))
-    self.SetMaxSize((300, 700))
-    self.SetMinSize((300, 700))
-    self.SetTitle('Tweeno')
-    self.Centre()
-    self.Show(True)
 
 
+  def properties(self):
+      self.SetTitle("Tweeno")
+      self.SetSize((300, 600))
+      self.column.SetScrollRate(10, 10)
+
+  def layout(self):
+      wrapperSizer = wx.BoxSizer(wx.HORIZONTAL)
+      columnSizer = wx.BoxSizer(wx.HORIZONTAL)
+      columnSizer.Add(self.column, 1, wx.RIGHT|wx.EXPAND, 3)
+      self.TabPane1.SetSizer(columnSizer)
+      wrapperSizer.Add(self.TabPane1, 1, wx.EXPAND, 0)
+      self.SetSizer(wrapperSizer)
+      self.Layout()
+
+
+  def demoMode(self, event):
+      tweet = "WordPress hack: Easily get post content by ID http://t.co/0mpCWRxc"
+      fromText = "Fromline"
+      self.tweetGridSizer = wx.FlexGridSizer(82, 1, 0, 0)
+      self.column.SetSizer(self.tweetGridSizer)
+      self.tweetGridSizer.Add((1,5), 0, 0, 0)
+      for i in range(10):
+          self.newSizer = wx.FlexGridSizer(1, 2, 0, 5)
+          self.tweetGridSizer.Add(self.newSizer)
+          self.tweetPic = wx.StaticBitmap(self.column, -1)
+          self.newSizer.Add(self.tweetPic)
+          self.tweetBox = wx.TextCtrl(self.column, -1, tweet, style=wx.TE_MULTILINE|wx.TE_READONLY|wx.TE_RICH|wx.TE_WORDWRAP|wx.NO_BORDER, size=(200, 65))
+          self.newSizer.Add(self.tweetBox)
+          self.fromBox = wx.TextCtrl(self.column, -1, fromText, style=wx.TE_READONLY|wx.NO_BORDER, size=(240,-1))
+          self.tweetGridSizer.Add(self.fromBox)
+          self.myLine = wx.StaticLine(self.column, -1, size=(240,-1))
+          self.tweetGridSizer.Add(self.myLine)
+          self.tweetGridSizer.Add((1,5), 0, 0, 0)
+      self.tweetGridSizer.Layout()
+      self.column.FitInside()
 
 
   def onConfig(self, event): 
@@ -81,9 +102,10 @@ class App(wx.Frame):
     self.Destroy()
     sys.exit()
 
-
-
-if __name__ == '__main__':
-  ex = wx.App()
-  App(None)
-  ex.MainLoop()
+if __name__ == "__main__":
+  app = wx.PySimpleApp(0)
+  #wx.InitAllImageHandlers()
+  mainFrame = App(None, -1, "")
+  app.SetTopWindow(mainFrame)
+  mainFrame.Show()
+  app.MainLoop()
