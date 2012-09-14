@@ -25,6 +25,8 @@ def replaceUTF(s):
                 ["č", "c"], 
                 ["í", "i"], 
                 ["ů", "u"],
+                ["“", "'"],
+                ["”", "'"],
                 ]
   out = s
   for letters in notAscii:
