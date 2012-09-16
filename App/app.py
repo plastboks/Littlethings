@@ -12,6 +12,7 @@
 import sys
 import wx
 import textwrap
+import time
 
 #import Tweeno
 import config
@@ -33,8 +34,9 @@ class App(wx.Frame):
     self.menu()
     self.properties()
     self.layout()
-    
-    self.addTweet(self)
+    self.tweetsDict()
+
+    self.drawTweets(self)
 
 
   def menu(self):
@@ -54,7 +56,7 @@ class App(wx.Frame):
 
     self.Bind(wx.EVT_TOOL, self.onConfig, configFileMenu)
     self.Bind(wx.EVT_TOOL, self.onClose, closeFileMenu)
-    self.Bind(wx.EVT_TOOL, self.addTweet, addSome)
+    self.Bind(wx.EVT_TOOL, self.drawTweets, addSome)
 
 
   def properties(self):
@@ -66,39 +68,67 @@ class App(wx.Frame):
 
 
   def layout(self):
-    wrapperSizer = wx.BoxSizer(wx.HORIZONTAL)
     columnSizer = wx.BoxSizer(wx.HORIZONTAL)
     columnSizer.Add(self.column, 1, wx.RIGHT|wx.EXPAND, 3)
     self.TabPane1.SetSizer(columnSizer)
+    
+    wrapperSizer = wx.BoxSizer(wx.HORIZONTAL)
     wrapperSizer.Add(self.TabPane1, 1, wx.EXPAND, 0)
+    self.SetSizer(wrapperSizer)
+
     self.tweetGS = wx.BoxSizer(wx.VERTICAL)
     self.column.SetSizer(self.tweetGS)
-    self.SetSizer(wrapperSizer)
+
+    self.tweetGS = wx.BoxSizer(wx.VERTICAL)
+    self.column.SetSizer(self.tweetGS)
+
     self.Layout()
 
 
-  def addTweet(self, event):
-    tweetText = "Hello World!"
+  def tweetsDict(self):
+    self.tweets = []
+
+
+  def addTweet(self, event, tweet):
+    newTweet = self.tweets.append({
+        "timestamp" : str(time.time()),
+        "pic"       : tweet["pic"],
+        "text"      : tweet["text"],
+        "from"      : tweet["from"],
+        })
+    return self.drawTweets(newTweet)
+
+
+
+  def drawTweets(self, event):
+    tweetText = "Heia"
     fromText = "God"
-    # Sizer for the tweet 
-    self.newSizer = wx.BoxSizer(wx.VERTICAL)
-    self.tweetGS.Add(self.newSizer)
-    # Tweet picture
-    self.pic = wx.BoxSizer(wx.VERTICAL)
-    self.newSizer.Add(self.pic)
-    # Tweet text
-    for line in textwrap.wrap(tweetText, 40):
-      tmp = wx.StaticText(self.column, -1, line)
-      self.newSizer.Add(tmp, flag=wx.LEFT|wx.TOP, border=3)
-    # Tweet byLine
-    self.by = wx.StaticText(self.column, -1, fromText)
-    self.tweetGS.Add(self.by, flag=wx.LEFT|wx.TOP, border=3)
-    # Tweet seperator
-    self.myLine = wx.StaticLine(self.column, -1, size=(280,-1))
-    self.tweetGS.Add(self.myLine)
-    # Some padding
-    self.tweetGS.Add((1,5), 0, 0, 0)
-    self.tweetGS.Layout()
+
+
+
+    for i in range(1, 5):
+      # Sizer for the tweet 
+      self.newSizer = wx.BoxSizer(wx.VERTICAL)
+      self.tweetGS.Add(self.newSizer)
+      # Tweet picture
+      self.pic = wx.BoxSizer(wx.VERTICAL)
+      self.newSizer.Add(self.pic)
+      # Tweet text
+      for line in textwrap.wrap(tweetText, 40):
+        tmp = wx.StaticText(self.column, -1, line)
+        self.newSizer.Add(tmp, flag=wx.LEFT|wx.TOP, border=3)
+      # Tweet byLine
+      self.by = wx.StaticText(self.column, -1, str(time.time()))
+      self.tweetGS.Add(self.by, flag=wx.LEFT|wx.TOP, border=3)
+      # Tweet seperator
+      self.myLine = wx.StaticLine(self.column, -1, size=(280,-1))
+      self.tweetGS.Add(self.myLine)
+      # Some padding
+      self.tweetGS.Add((1,5), 0, 0, 0)
+      self.tweetGS.Layout()
+
+
+    #self.columnSizer.Add(self.tweetGS)
 
 
   def onConfig(self, event): 
