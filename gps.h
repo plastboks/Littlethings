@@ -24,7 +24,7 @@ class GPS : TinyGPS {
   
   private: 
     void setData();
-    void getData();
+    bool getData();
 
 };
 #endif

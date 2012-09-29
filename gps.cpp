@@ -11,7 +11,15 @@ This library depends on u8glib
 
 GPS::GPS(HardwareSerial& serial) : _s(serial) { }
 
-void GPS::getData() {
+bool GPS::getData() {
+  while(_s.available()) {
+    char c = (char)_s.read();
+    if GPS::encode(c) {
+      return true;
+    }
+    
+    return false; 
+  }
 }
 
 void GPS::setData() {
