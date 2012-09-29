@@ -15,6 +15,7 @@
 
 import twitter
 import time
+import unicodedata
 # - project spesifict import
 import config
 import functions
@@ -35,16 +36,16 @@ oldMessage = None
 
 while True:
   statuses = t.GetFriendsTimeline(user="skjoldenfrilans", count=1, retweets=True)
-  message = [s.text for s in statuses][0].encode("utf-8", "replace")
+  message = [s.text for s in statuses][0]
   user = [s.user.screen_name for s in statuses]
 
-  if not message == oldMessage:
-    #print message + "   By: @" + user[0]
-    print functions.replaceUTF(message) + "   @" + user[0]
-    oldMessage = message
+  ascii_message = unicodedata.normalize("NFKD", message).encode("ascii", "ignore")
+
+  if not ascii_message == oldMessage:
+    print ascii_message
+    oldMessage = ascii_message
     d.clear()
-    #d.send(message)
-    d.send(functions.replaceUTF(message))
+    d.send(ascii_message)
     d.byline(user[0])
     d.end()
   time.sleep(10)
