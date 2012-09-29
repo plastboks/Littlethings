@@ -3,6 +3,9 @@
 #include <EEPROM.h>
 #include <stdarg.h>
 #include "ircodes.h"
+#include "screens.h"
+#include "eeprom.h"
+#include "gps.h"
 #include <SoftwareSerial.h>
 #include <OBD.h>
 
@@ -44,46 +47,12 @@ float cDriven = 0.0;
 float dDriven = 0.0;
 float lastBDriven, lastCDriven, lastDDriven;
 static FILE lcdout = {0} ;  // LCD FILE structure
-
+char gpsFeedString;
 
 // LCD character writer
 static int lcd_putchar(char ch, FILE* stream) {
   u8g.write(ch);
   return (0);
-}
-
-
-// eeprom write float 
-void EEPROM_writeDouble(int ee, double value) {
-  byte* p = (byte*)(void*)&value;
-  for (int i = 0; i < sizeof(value); i++)
-	  EEPROM.write(ee++, *p++);
-}
-
-
-// eeprom read float 
-double EEPROM_readDouble(int ee) {
-  double value = 0.0;
-  byte* p = (byte*)(void*)&value;
-  for (int i = 0; i < sizeof(value); i++)
-	  *p++ = EEPROM.read(ee++);
-  return value;
-} 
-
-
-// read from eeprom 
-void readFromEEprom(void) {
-  bDriven = EEPROM_readDouble(10);
-  cDriven = EEPROM_readDouble(20);
-  dDriven = EEPROM_readDouble(30); 
-}
-
-
-// save to eeprom
-void saveToEEprom(void) {
-  EEPROM_writeDouble(10, bDriven);
-  EEPROM_writeDouble(20, cDriven);
-  EEPROM_writeDouble(30, dDriven);
 }
 
 
@@ -129,29 +98,6 @@ int listenForIR(void) {
 }
 
 
-// average Speed calculate 
-void averageSpeed(void) {
-  i++;
-  avgspeedH = fkmph + avgspeedH;
-  avgspeed = avgspeedH / i;
-}
-
-
-// odomoter 
-void odoMeter(void) {
-  if (neverHadFix == 1) { lastLat = flat; lastLon = flon; }
-  if (fkmph > 1.0) { aDriven = aDriven + gps.distance_between(flat, flon, lastLat, lastLon); }
-  if (fkmph > 1.0) { bDriven = bDriven + gps.distance_between(flat, flon, lastLat, lastLon); }
-  if (fkmph > 1.0) { cDriven = cDriven + gps.distance_between(flat, flon, lastLat, lastLon); }
-  if (fkmph > 1.0) { dDriven = cDriven + gps.distance_between(flat, flon, lastLat, lastLon); }
-  lastLat = flat;
-  lastLon = flon;
-  lastBDriven = bDriven;
-  lastCDriven = cDriven;
-  lastDDriven = dDriven;
-}
-
-
 // scan for gps data on serial input
 bool gpsGetData(void) {
   faultCounter ++;
@@ -173,20 +119,6 @@ bool gpsGetData(void) {
 }
 
 
-// setGpsData to variables
-void setGpsData(void) {
-  gps.f_get_position(&flat, &flon, &age);
-  fkmph = gps.f_speed_kmph();
-  falt = gps.f_altitude();
-  fc = gps.f_course();
-  const char *cardinal = gps.cardinal(fc);
-  satellites = gps.satellites();
-  hdop = gps.hdop();    
-  gps.crack_datetime(&year, &month, &day, &hour, &minutes, &second, &hundredths, &fix_age);
-  odoMeter();
-  averageSpeed();
-}
-
 
 // main screen rotator
 void drawRotator(void) {
@@ -197,101 +129,10 @@ void drawRotator(void) {
 }
 
 
-void powerLostScreen(void) {
-  if (shutdownState == 0) {
-    saveToEEprom();
-    shutdownState = 1;
-    u8g.setFont(u8g_font_10x20);
-    u8g.drawStr(10, 28, "Writing");
-    u8g.drawStr(48, 48, "...");
-  } else {
-    u8g.setFont(u8g_font_10x20);
-    u8g.drawStr(10, 28, "Shutdown");
-    u8g.drawStr(48, 48, "...");
-  }
-}
-
-
 void noSignalGpsScreen(void) {
   u8g.setFont(u8g_font_10x20);
   u8g.drawStr(10, 28, "Wait for it");
   u8g.drawStr(48, 48, "...");
-}
-
-
-void firstGpsScreen(void) {
-    
-  int timeZone = hour + 2;
-  if (timeZone == 24) { timeZone = 0; }
-  if (timeZone == 25) { timeZone = 1; }
-
-  u8g.drawLine(0, 8, 128, 8);
-  u8g.drawLine(0, 44, 128, 44);
-  
-  u8g.setFont(u8g_font_6x12);
-  u8g.setPrintPos(4, 7);
-  fprintf(&lcdout, "%d-%02d-%02d    %02d:%02d", year, month, day, timeZone, minutes);
-
-  u8g.setFont(u8g_font_10x20);
-  u8g.setPrintPos(6, 28);
-  u8g.print(fkmph, 1);
-  u8g.setPrintPos(58, 28);
-  u8g.print("/");
-  u8g.setPrintPos(70, 28);
-  u8g.print(avgspeed, 1);
-
-  u8g.setFont(u8g_font_6x12);
-  
-  u8g.setPrintPos(24, 43);
-  u8g.print("Odometer (km)");
-  
-  u8g.setPrintPos(4, 54);
-  u8g.print("A: ");
-  u8g.setPrintPos(16, 54);
-  u8g.print(aDriven/1000, 1);
-
-  u8g.setPrintPos(4, 64);
-  u8g.print("B: ");
-  u8g.setPrintPos(16, 64);
-  u8g.print(bDriven/1000, 1);
-
-  u8g.setPrintPos(64, 54);
-  u8g.print("C: ");
-  u8g.setPrintPos(76, 54);
-  u8g.print(cDriven/1000, 1);
-  
-  u8g.setPrintPos(64, 64);
-  u8g.print("D: ");  
-  u8g.setPrintPos(76, 64);
-  u8g.print(dDriven/1000, 1);
-  
-  neverHadFix = 0;
-}
-
-
-void secondGpsScreen(void) {
-  u8g.setFont(u8g_font_10x20);
-  u8g.drawStr(4, 16, "LAT");
-  u8g.setPrintPos(38, 16);
-  u8g.print(flat, 5);
-  u8g.drawStr(4, 32, "LON");
-  u8g.setPrintPos(38, 32);
-  u8g.print(flon, 5);
-  
-  u8g.setFont(u8g_font_6x12);
-  u8g.drawStr(4, 46, "ALT");
-  u8g.setPrintPos(24, 46);
-  u8g.print(falt, 1);
-  u8g.drawStr(64, 46, "COUR");
-  u8g.setPrintPos(90, 46);
-  u8g.print(fc, 1);
-
-  u8g.drawStr(4, 60, "SAT");
-  u8g.setPrintPos(24, 60);
-  u8g.print(satellites);
-  u8g.drawStr(64, 60, "HDOP");
-  u8g.setPrintPos(90, 60);
-  u8g.print(hdop);
 }
 
 
@@ -309,7 +150,7 @@ void setup() {
 void loop(void) {
 
   unsigned long currentMillis = millis();
-  gpsGetData();
+  //gpsGetData();
   
   if(currentMillis - previousMillis > interval) {
     if (digitalRead(mainsPower) == HIGH) {
@@ -350,3 +191,17 @@ void loop(void) {
     
 
 }
+
+
+void serialEvent() {
+  while (Serial.available()) {
+    int c = Serial.read(); 
+
+    if (gps.encode(c)) {
+      //gpsFeedString = NULL;
+      setGpsData();
+      newGpsData = true;
+    }
+  }
+}
+
