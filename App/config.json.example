@@ -1,1 +1,1 @@
-{"consumer_secret": "", "access_token_key": "", "consumer_key": "", "access_token_secret": ""}
+{"oauth": {"consumer_secret": "", "access_token_key": "", "access_token_secret": "", "consumer_key": ""}, "serial": {"port": ""}, "user" : {"name" : ""} }

@@ -15,43 +15,33 @@
 
 import twitter
 import time
-import unicodedata
+
 # - project spesifict import
 import config
 import functions
 import LCD
+import fetch
 
 
 c = config.Config()
-t = twitter.Api(
-  consumer_key=c.o_ck,
-  consumer_secret=c.o_cs, 
-  access_token_key=c.o_atk, 
-  access_token_secret=c.o_ats,
-  input_encoding="utf-8")
-
+t = fetch.tweet(c)
 d = LCD.p160_128(c.s_port, 57600)
 
 oldMessage = None
 
 while True:
-  statuses = t.GetFriendsTimeline(user="skjoldenfrilans", count=1, retweets=True)
-  message = [s.text for s in statuses][0]
-  user = [s.user.screen_name for s in statuses][0]
+  data = t.fetchNewMessage()
 
-  userdata = t.GetUser(user)
-  userimg = userdata.profile_image_url
+  asciiMessage = t.asciiMe(data[0])
 
-  ascii_message = unicodedata.normalize("NFKD", message).encode("ascii", "ignore")
-
-  if not ascii_message == oldMessage:
-    print ascii_message + "\nBy @:" +user
-    oldMessage = ascii_message
+  if not asciiMessage == oldMessage:
+    print asciiMessage + "\nBy @:" +data[1]
+    oldMessage = asciiMessage
     d.clear()
-    d.send(ascii_message)
-    d.byline(user)
+    d.send(asciiMessage)
+    d.byline(data[1])
     d.end()
-  time.sleep(10)
+  time.sleep(15)
 
 d.close()
 

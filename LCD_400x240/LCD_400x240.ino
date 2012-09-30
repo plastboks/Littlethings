@@ -6,6 +6,13 @@ extern uint8_t BigFont[];
 
 UTFT lcd(ITDB32WD,38,39,40,41);
 
+extern unsigned int TLtwitter[1024];
+extern unsigned int TRtwitter[1024];
+extern unsigned int BLtwitter[1024];
+extern unsigned int BRtwitter[1024];
+
+
+
 String inputString = "";
 boolean stringComplete = false;
 int line = 2;
@@ -26,6 +33,11 @@ void LCDclearScreen() {
 void LCDsplash() {
   lcd.setFont(BigFont);
   lcd.print("Twitter Display", 70, 100);
+  
+  //lcd.drawBitmap (50, 50, 32, 32, TLtwitter);
+  //lcd.drawBitmap (50, 100, 32, 32, TRtwitter);
+  //lcd.drawBitmap (100, 50, 32, 32, BLtwitter);
+  //lcd.drawBitmap (100, 100, 32, 32, BRtwitter);
   
   lcd.setFont(SmallFont);
   lcd.print("Version: 0.0.1 Alpha", 200, 200);
