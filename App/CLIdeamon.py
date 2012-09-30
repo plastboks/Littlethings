@@ -37,16 +37,19 @@ oldMessage = None
 while True:
   statuses = t.GetFriendsTimeline(user="skjoldenfrilans", count=1, retweets=True)
   message = [s.text for s in statuses][0]
-  user = [s.user.screen_name for s in statuses]
+  user = [s.user.screen_name for s in statuses][0]
+
+  userdata = t.GetUser(user)
+  userimg = userdata.profile_image_url
 
   ascii_message = unicodedata.normalize("NFKD", message).encode("ascii", "ignore")
 
   if not ascii_message == oldMessage:
-    print ascii_message
+    print ascii_message + "\nBy @:" +user
     oldMessage = ascii_message
     d.clear()
     d.send(ascii_message)
-    d.byline(user[0])
+    d.byline(user)
     d.end()
   time.sleep(10)
 
