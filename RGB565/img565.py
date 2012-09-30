@@ -14,3 +14,15 @@
 #
 
 
+from PIL import Image
+
+im = Image.open("demo300.png")
+
+imgsize = im.size[0]
+
+split = imgsize / 2
+
+im.crop([0, 0, split, split]).show() # upper left
+im.crop([split, 0, imgsize, split]).show() # upper right
+im.crop([0, split, split, imgsize]).show() # lower left
+im.crop([split, split, imgsize, imgsize]).show() # lower right
