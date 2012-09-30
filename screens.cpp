@@ -2,7 +2,6 @@
 Screens.cpp - Library for outputting different screens for Bragi
 Created by Alexander Skjolden - September 2012
 Released into the public domain.
-This file is heavily inspired by http://www.arduino.cc/en/Hacking/LibraryTutorial
 This library depends on u8glib
 */
 
@@ -11,10 +10,14 @@ This library depends on u8glib
 
 Screens::Screens(U8GLIB_ST7920_128X64& parent) : _d(parent) { }
 
-void Screens::speedoMeter() {
-  
-  _d.drawLine(0, 8, 128, 8);
-  _d.drawLine(0, 44, 128, 44);
+void Screens::speedoMeter(int number, int time) {
+  _d.setFont(u8g_font_10x20);
+  //_d.drawLine(0, 8, 128, 8);
+  _d.setPrintPos(10, 28);
+  _d.print(number);
+  _d.setPrintPos(10, 48);
+  _d.print(time);
+  //_d.drawLine(0, 44, 128, 44);
   
 }
 

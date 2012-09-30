@@ -16,7 +16,7 @@ class Screens {
     Screens(U8GLIB_ST7920_128X64& parent);
     U8GLIB_ST7920_128X64& _d;
     
-    void speedoMeter();
+    void speedoMeter(int number, int time);
     void geo();
     void noSignal();
     void writing();
