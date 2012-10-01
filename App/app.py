@@ -75,10 +75,7 @@ class App(wx.Frame):
     wrapperSizer = wx.BoxSizer(wx.HORIZONTAL)
     wrapperSizer.Add(self.TabPane1, 1, wx.EXPAND, 0)
     self.SetSizer(wrapperSizer)
-
-    self.tweetGS = wx.BoxSizer(wx.VERTICAL)
-    self.column.SetSizer(self.tweetGS)
-
+    
     self.tweetGS = wx.BoxSizer(wx.VERTICAL)
     self.column.SetSizer(self.tweetGS)
 
@@ -107,6 +104,7 @@ class App(wx.Frame):
 
 
     for i in range(1, 5):
+
       # Sizer for the tweet 
       self.newSizer = wx.BoxSizer(wx.VERTICAL)
       self.tweetGS.Add(self.newSizer)
@@ -127,8 +125,7 @@ class App(wx.Frame):
       self.tweetGS.Add((1,5), 0, 0, 0)
       self.tweetGS.Layout()
 
-
-    #self.columnSizer.Add(self.tweetGS)
+    self.tweetGS.Layout()
 
 
   def onConfig(self, event): 

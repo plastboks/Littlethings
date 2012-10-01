@@ -49,6 +49,9 @@ class Config():
       },
       "serial" : {
         "port" : "",
+      },
+      "user" : {
+        "name" : "",
       }
     }
 
@@ -63,6 +66,7 @@ class Config():
       self.o_ats = c["oauth"]["access_token_secret"]
       self.o_atk = c["oauth"]["access_token_key"]
       self.s_port = c["serial"]["port"]
+      self.u_name = c["user"]["name"]
       return True
     else:
       return False
@@ -77,6 +81,7 @@ class Config():
       c["oauth"]["access_token_secret"] = self.o_ats
       c["oauth"]["access_token_key"] = self.o_atk
       c["serial"]["port"] = self.s_port
+      c["user"]["name"] = self.u_name
       cFile.seek(0)
       cFile.write(json.dumps(c))
       cFile.truncate()

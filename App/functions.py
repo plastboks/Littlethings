@@ -14,21 +14,3 @@
 #
 
 #- A simple custom replace UTF characther in string function
-def replaceUTF(s):
-  notAscii = [  ["Æ","AE"], 
-                ["æ","ae"], 
-                ["Ø","O"], 
-                ["ø","o"], 
-                ["Å","å"], 
-                ["å","a"], 
-                ["è", "e"], 
-                ["č", "c"], 
-                ["í", "i"], 
-                ["ů", "u"],
-                ["“", "'"],
-                ["”", "'"],
-                ]
-  out = s
-  for letters in notAscii:
-    out = out.replace(letters[0], letters[1])
-  return out
