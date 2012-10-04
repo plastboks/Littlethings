@@ -14,15 +14,22 @@
 #
 
 
+# from 8bit to 5/6 bit = 255 >> 3 (5bit), org 255 >> 2 (6bit)
+
+
 from PIL import Image
 
-im = Image.open("demo300.png")
-
-imgsize = im.size[0]
-
+demoImage = Image.open("demo300.png")
+imgsize = demoImage.size[0]
 split = imgsize / 2
 
-im.crop([0, 0, split, split]).show() # upper left
-im.crop([split, 0, imgsize, split]).show() # upper right
-im.crop([0, split, split, imgsize]).show() # lower left
-im.crop([split, split, imgsize, imgsize]).show() # lower right
+iUL = demoImage.crop([0, 0, split, split]) # upper left
+iUR = demoImage.crop([split, 0, imgsize, split]) # upper right
+iLF = demoImage.crop([0, split, split, imgsize]) # lower left
+iLR = demoImage.crop([split, split, imgsize, imgsize]) # lower right
+
+iULData = list(iUL.getdata())
+
+
+for entry in iULData:
+  print entry

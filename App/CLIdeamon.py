@@ -41,7 +41,7 @@ while True:
     d.send(asciiMessage)
     d.byline(data[1])
     d.end()
-  time.sleep(15)
+  time.sleep(30)
 
 d.close()
 
