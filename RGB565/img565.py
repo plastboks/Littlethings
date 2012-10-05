@@ -23,13 +23,14 @@ demoImage = Image.open("demo300.png")
 imgsize = demoImage.size[0]
 split = imgsize / 2
 
-iUL = demoImage.crop([0, 0, split, split]) # upper left
-iUR = demoImage.crop([split, 0, imgsize, split]) # upper right
-iLF = demoImage.crop([0, split, split, imgsize]) # lower left
-iLR = demoImage.crop([split, split, imgsize, imgsize]) # lower right
+imageParts = [
+  list(demoImage.crop([0, 0, split, split]).getdata()),
+  list(demoImage.crop([split, 0, imgsize, split]).getdata()),
+  list(demoImage.crop([0, split, split, imgsize]).getdata()),
+  list(demoImage.crop([split, split, imgsize, imgsize]).getdata()),
+]
 
-iULData = list(iUL.getdata())
 
-
-for entry in iULData:
-  print entry
+for part in imageParts:
+  for entry in part:
+    print(hex(((entry[0] >> 3) << 11) + ((entry[1] >> 2) << 5) + (entry[2] >> 3)))
