@@ -33,43 +33,41 @@ def toRBG565(data):
     )
 
 
-def imageSplit(image, splits):
+
+def imageSplit(img, splits):
   p = int(math.sqrt(splits))
-  p2 = image.size[0] / p
+  h = img[0] / p
+  v = img[1] / p
+
   outDict = []
-  for i, r in enumerate(range(0, image.size[0], image.size[0] / p)):
-    if r == 0:
-      r = 1
-    for c in range(1, p + 1):
+  for r in range(1, img[1], v):
+    if r != 1 : r = r - 1
+    for c in range(1, img[0], h):
+      if c != 1 : c = c - 1
+      w = c
       x = r
-      y = c * p2
-      w = y - p2 if c != 1 else (y + 1) - p2
-      z = r + p2 if r != 1 else (r + p2) - 1
-      outDict.append([w, x, y, z])
+      y = c + h if c != 1 else (c + h) - 1
+      z = r + v if r != 1 else (r + v) - 1
+      outDict.append((w, x, y, z))
 
   return outDict
 
 
-demoImage = Image.open("demo32.png")
-imgsize = demoImage.size[0]
-split = imgsize / 2
 
-print(imageSplit(demoImage, 16))
+demoImage = Image.open("128x96.png")
 
 
-"""imageParts = [
-  list(demoImage.crop([0, 0, split, split]).getdata()),
-  list(demoImage.crop([split, 0, imgsize, split]).getdata()),
-  list(demoImage.crop([0, split, split, imgsize]).getdata()),
-  list(demoImage.crop([split, split, imgsize, imgsize]).getdata()),
-]
-
+imageParts = []
 outArray = {}
+
+for cor in imageSplit(demoImage.size, 16):
+  print(cor)
+  imageParts.append(list(demoImage.crop(cor).getdata()))
+
 
 for idx, part in enumerate(imageParts):
   outArray[idx] = []
   for entry in part:
     outArray[idx].append(toRBG565(entry))
-"""
 
-
+print outArray
