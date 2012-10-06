@@ -16,10 +16,25 @@
 
 # from 8bit to 5/6 bit = 255 >> 3 (5bit), org 255 >> 2 (6bit)
 
-
 from PIL import Image
+import time
 
-demoImage = Image.open("demo300.png")
+start = time.time()
+
+
+def toRBG565(data):
+  toFiveSixFive = [
+    data[0] >> 3,
+    data[1] >> 2,
+    data[2] >> 3,
+    ]
+
+  return hex(
+      ((toFiveSixFive[0] << 11) + (toFiveSixFive[1] << 5)) + toFiveSixFive[2]
+    )
+
+
+demoImage = Image.open("2560x1600.png")
 imgsize = demoImage.size[0]
 split = imgsize / 2
 
@@ -30,7 +45,14 @@ imageParts = [
   list(demoImage.crop([split, split, imgsize, imgsize]).getdata()),
 ]
 
+outArray = {}
 
-for part in imageParts:
+for idx, part in enumerate(imageParts):
+  outArray[idx] = []
   for entry in part:
-    print(hex(((entry[0] >> 3) << 11) + ((entry[1] >> 2) << 5) + (entry[2] >> 3)))
+    outArray[idx].append(toRBG565(entry))
+
+stop = time.time()
+
+print (stop - start)
+
