@@ -20,7 +20,6 @@
 
 tstp t(Serial);
 
-
 UTFT myGLCD(ITDB32WD,38,39,40,41);
 
 
@@ -31,41 +30,13 @@ void setup() {
 }
 
 
-void loop() {
-  
-
-}
+void loop() {}
 
 
 void serialEvent() {
   while (Serial.available()) {
   
-    int inInt = Serial.read();
+    t.getData();   
 
-    
-    if (inInt == 1) {
-      Serial.write(0x01);  
-    }
-   
-    if (inInt == 2) {
-      Serial.write("STX is received");
-    }
-   
-    if (inInt == 3) {
-      Serial.write("ETX is received");
-    }
-    
-    if (inInt == 4) {
-      Serial.write("EOT is received");
-    }
-    
-    if (inInt == 6) {
-      Serial.write("ACK is received");
-    }
-    
-    if (inInt == 30) {
-      Serial.write("RS is received");
-    }
-   
   }
 }

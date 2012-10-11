@@ -12,50 +12,76 @@
   
   @author: Alexander Skjolden
 
+  @version: 0.0.2
+
 */
 
 #include "arduino.h"
 #include "tstp.h"
 
-tstp::tstp(HardwareSerial& serial) : _s(serial) {}
+tstp::tstp(HardwareSerial& serial) : _s(serial) {
+  tstp::byteCounter = 0;
+}
 
-void tstp::readData() {
+void tstp::getData() {
   while(_s.available()) {
+    tstp::byteCounter++;
+    int inInt = (int)_s.read();
     
-    char inInt = (int)_s.read();
-    
-    if (inInt == 1) {
-      Serial.write(0x01);  
+    if (tstp::gotHeader) {
+      tstp::readData(inInt);
+    } else {
+      tstp::readHeader(inInt);
     }
-   
-    if (inInt == 2) {
-      Serial.write("STX is received");
-    }
-   
-    if (inInt == 3) {
-      Serial.write("ETX is received");
-    }
-    
-    if (inInt == 4) {
-      Serial.write("EOT is received");
-    }
-    
-    if (inInt == 6) {
-      Serial.write("ACK is received");
-    }
-    
-    if (inInt == 30) {
-      Serial.write("RS is received");
-    }
-    
   }
 }
 
-void tstp::checkSum() {
+void tstp::readHeader(int input) {
+  if (tstp::byteCounter == 1) {
+    tstp::dataType = input;
+  } else if (tstp::byteCounter == 2) {
+    tstp::dataSize = input;
+    tstp::dataArray[tstp::dataSize];
+    tstp::gotHeader = true;
+  }
 }
 
-void tstp::response() {
+void tstp::readData(int input) {
+  int data = input;
+  switch (tstp::dataType) {
+   case 1:
+    tstp::string(data);
+    break;
+   case 2:
+    tstp::image(data);
+    break;
+  }
 }
+
+void tstp::string(int input) {
+  if (tstp::dataSize) {
+    tstp::dataArray[byteCounter - 2] = input;
+    tstp::dataSize--;
+  } else {
+    for (int i = 0; i < byteCounter - 2 ; i++) { // This is a bit fugly..
+      _s.write(tstp::dataArray[i]);
+    }
+  }
+}
+
+void tstp::image(int input) {
+  _s.write(tstp::dataSize);
+}
+
+void nukeDataArray(int size) {
+  for (int i = 0; i < size; i++) {
+    //tstp::dataArray[i] = NULL; // A bug her. This must be fixed...
+  } 
+}
+
+void tstp::checkSum() {}
+
+void tstp::response() {}
 
 
 

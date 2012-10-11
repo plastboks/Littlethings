@@ -12,6 +12,8 @@
   
   @author: Alexander Skjolden
 
+  @version: 0.0.2
+
 */
 
 #ifndef tstp_h
@@ -26,17 +28,26 @@ class tstp {
     tstp(HardwareSerial& serial);
     HardwareSerial& _s;
     
-    void readData();
-    void checkSum();
+    void getData();
     void response();
   
-  private: 
-    boolean hasSOH;
-    boolean hasSTX;
-    boolean hasETX;
-    boolean hasEOT;
 
+
+  private: 
+    void readHeader(int input);
+    void readData(int input);
+    void string(int intput);
+    void image(int intput);
+    void checkSum();
+    void nukeDataArray(int size);
+
+    unsigned int byteCounter;
+    unsigned int dataType;
+    unsigned int dataSize;
+    unsigned int dataArray[];
+
+    boolean gotHeader;
+    
 };
 
 #endif
-
