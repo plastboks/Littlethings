@@ -28,7 +28,9 @@ void tstp::getData() {
     tstp::byteCounter++;
     int inInt = (int)_s.read();
     
-    if (tstp::gotHeader) {
+    if (tstp::readyForChecksum) {
+      tstp::verifyCheckSum(inInt);
+    } else if (tstp::gotHeader) {
       tstp::readData(inInt);
     } else {
       tstp::readHeader(inInt);
@@ -37,16 +39,19 @@ void tstp::getData() {
 }
 
 void tstp::readHeader(int input) {
+  
   if (tstp::byteCounter == 1) {
     tstp::dataType = input;
   } else if (tstp::byteCounter == 2) {
     tstp::dataSize = input;
+    tstp::loopSize = input;
     tstp::gotHeader = true;
   }
 }
 
 void tstp::readData(int input) {
   int data = input;
+  
   switch (tstp::dataType) {
    case 1:
     tstp::string(data);
@@ -58,25 +63,55 @@ void tstp::readData(int input) {
 }
 
 void tstp::string(int input) {
-  if (tstp::dataSize) {
-    tstp::dataArray[byteCounter - 2] = input;
-    tstp::dataSize--;
-  } else {
-    for (int i = 0; i < byteCounter - 2 ; i++) { // This is a bit fugly..
-      _s.write(tstp::dataArray[i]);
-    }
+  int mainCount = tstp::byteCounter - 2;
+
+  if (tstp::loopSize) {
+    tstp::dataArray[mainCount] = input;
+    tstp::loopSize--;
+  } 
+
+  if (input == 0x17) tstp::readyForChecksum = true;
+
+}
+
+void tstp::image(int input) { // NOT A WORKING EXAMPLE, DATA NEED TO BE PROCESSED.
+  int imageCount = tstp::byteCounter - 2;
+  int mainCount = tstp::byteCounter - 8;
+
+  if (tstp::byteCounter <= 8) {
+    tstp::imageInfoArray[imageCount] = input;
+  } else if (tstp::loopSize) {
+    tstp::dataArray[mainCount] = input;
+    tstp::loopSize--;
   }
+
+  if (input == 0x17) tstp::readyForChecksum = true;
+
 }
 
-void tstp::image(int input) {
-  _s.write(tstp::dataSize);
+void tstp::nukeDataArray() {
+  memset(tstp::dataArray, 0, 256); // NOT TESTED !!!
 }
 
-void nukeDataArray() {
-  memset(&tstp::dataArray[0], 0, sizeof(tstp::dataArray[0]) * 256); // Probably not working...
+void tstp::verifyCheckSum(int input) {
+  
+  if (input == genCheckSum(tstp::dataArray, tstp::dataSize)) {
+    _s.write(0x06);
+  } else {
+    _s.write(0x15);
+  }
+
 }
 
-void tstp::checkSum() {}
+int tstp::genCheckSum(unsigned int dataArray[], unsigned int dataSize) {
+  int i, XOR, c;
+
+  for (XOR = 0, i = 0; i < dataSize; i++) {
+    c = dataArray[i];
+    XOR ^= c;
+  }
+  return XOR;  
+}
 
 void tstp::response() {}
 

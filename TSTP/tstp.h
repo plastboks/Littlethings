@@ -30,23 +30,27 @@ class tstp {
     
     void getData();
     void response();
-  
+    unsigned int dataArray[256];
+    unsigned int imageInfoArray[6];
 
 
   private: 
     void readHeader(int input);
     void readData(int input);
-    void string(int intput);
-    void image(int intput);
-    void checkSum();
+    void string(int input);
+    void image(int intput);   
+    void verifyCheckSum(int input);
     void nukeDataArray();
+
+    int genCheckSum(unsigned int dataArray[], unsigned int dataSize); 
 
     unsigned int byteCounter;
     unsigned int dataType;
     unsigned int dataSize;
-    unsigned int dataArray[256];
+    unsigned int loopSize;
 
     boolean gotHeader;
+    boolean readyForChecksum;
     
 };
 
