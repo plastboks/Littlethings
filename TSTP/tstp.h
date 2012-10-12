@@ -39,12 +39,12 @@ class tstp {
     void string(int intput);
     void image(int intput);
     void checkSum();
-    void nukeDataArray(int size);
+    void nukeDataArray();
 
     unsigned int byteCounter;
     unsigned int dataType;
     unsigned int dataSize;
-    unsigned int dataArray[];
+    unsigned int dataArray[256];
 
     boolean gotHeader;
     

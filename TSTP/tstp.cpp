@@ -41,7 +41,6 @@ void tstp::readHeader(int input) {
     tstp::dataType = input;
   } else if (tstp::byteCounter == 2) {
     tstp::dataSize = input;
-    tstp::dataArray[tstp::dataSize];
     tstp::gotHeader = true;
   }
 }
@@ -73,10 +72,8 @@ void tstp::image(int input) {
   _s.write(tstp::dataSize);
 }
 
-void nukeDataArray(int size) {
-  for (int i = 0; i < size; i++) {
-    //tstp::dataArray[i] = NULL; // A bug her. This must be fixed...
-  } 
+void nukeDataArray() {
+  memset(&tstp::dataArray[0], 0, sizeof(tstp::dataArray[0]) * 256); // Probably not working...
 }
 
 void tstp::checkSum() {}
