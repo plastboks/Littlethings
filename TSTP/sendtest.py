@@ -19,13 +19,13 @@ from rgb565 import rgb565
 
 t = tstp(
   Serial(
-    "/dev/tty.usbmodemfa1231", 
+    "/dev/tty.usbmodemfa1221", 
     57600, 
     timeout=0.01, # Very aggressive timeout because of recurring speed.
   ) 
 )
 
-r = rgb565("8x8.png")
+r = rgb565("8x8-black.png")
 
 try:
   t.image(r.img24bitList())

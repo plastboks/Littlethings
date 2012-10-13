@@ -20,17 +20,34 @@
 
 tstp t(Serial);
 
-UTFT myGLCD(ITDB32WD,38,39,40,41);
+extern uint8_t BigFont[];
+UTFT d(ITDB32WD,38,39,40,41);
 
 
 void setup() {
-  myGLCD.InitLCD(LANDSCAPE);
+  d.InitLCD(LANDSCAPE);
+  d.setFont(BigFont);
   Serial.begin(57600);
   Serial.flush();
 }
 
 
-void loop() {}
+void loop() {
+
+
+
+  if (t.imageReady) {
+    //d.drawBitmap(8, 8, 8, 8, t.generatedImage);
+    //d.print("Hei verden", 32, 32);
+    for (int i = 0; i < 64; i++) {
+
+      d.printNumI(i, 64, 48);
+      d.printNumI(t.generatedImage[i], 64,64);
+      delay(2000);
+    }
+  }
+
+}
 
 
 void serialEvent() {

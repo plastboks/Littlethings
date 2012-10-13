@@ -30,7 +30,7 @@ class rgb565:
   def imgData(self):
     return self.img.getdata()
 
-  def toRBG565(data):
+  def toRBG565(self, data):
     toFiveSixFive = [
       data[0] >> 3,
       data[1] >> 2,
@@ -38,7 +38,7 @@ class rgb565:
       ]
     return hex( ((toFiveSixFive[0] << 11) + (toFiveSixFive[1] << 5)) + toFiveSixFive[2] )
 
-  def imageSplit(img, splits):
+  def imageSplit(self, img, splits):
     p = int(math.sqrt(splits))
     h = img[0] / p
     v = img[1] / p

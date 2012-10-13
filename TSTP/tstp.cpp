@@ -23,6 +23,7 @@ tstp::tstp(HardwareSerial& serial) : _s(serial) {
   tstp::byteCounter = 0;
 }
 
+
 void tstp::getData() {
   while(_s.available()) {
     tstp::byteCounter++;
@@ -38,6 +39,7 @@ void tstp::getData() {
   }
 }
 
+
 void tstp::readHeader(int input) {
   
   if (tstp::byteCounter == 1) {
@@ -48,6 +50,7 @@ void tstp::readHeader(int input) {
     tstp::gotHeader = true;
   }
 }
+
 
 void tstp::readData(int input) {
   int data = input;
@@ -62,6 +65,7 @@ void tstp::readData(int input) {
   }
 }
 
+
 void tstp::string(int input) {
   int mainCount = tstp::byteCounter - 2;
 
@@ -74,43 +78,33 @@ void tstp::string(int input) {
 
 }
 
+
 void tstp::image(int input) { // NOT A WORKING EXAMPLE, DATA NEED TO BE PROCESSED.
   int imageCount = tstp::byteCounter - 2;
-  int mainCount = tstp::byteCounter - 8;
+  int mainCount = tstp::dataSize - tstp::loopSize;
 
   if (tstp::byteCounter <= 8) {
     tstp::imageInfoArray[imageCount] = input;
-    _s.write("POS");
   } else if (tstp::loopSize) {
     tstp::dataArray[mainCount] = input;
-    _s.write(input);
     tstp::loopSize--;
   }
 
-  if (input == 0x17) {
-    tstp::readyForChecksum = true;
-  }
+  if (input == 0x17) tstp::readyForChecksum = true;
 
 }
 
-void tstp::nukeDataArray() {
-  memset(tstp::dataArray, 0, 256); // NOT TESTED !!!
-}
 
 void tstp::verifyCheckSum(int input) {
   
   if (input == genCheckSum(tstp::dataArray, tstp::dataSize)) {
-    //_s.write(0x06);
-    _s.write(genCheckSum(tstp::dataArray, tstp::dataSize));
-    //_s.write("Arduino says yay!");
+    _s.write(0x06);
+    tstp::makeRGB565();
   } else {
-    //_s.write(0x15);
-    _s.write(input);
-    //_s.write(genCheckSum(tstp::dataArray, tstp::dataSize));
-    //_s.write("Arduino says nay!");
+    _s.write(0x15);
   }
-
 }
+
 
 int tstp::genCheckSum(unsigned int dataArray[], unsigned int dataSize) {
   int i, XOR, c;
@@ -123,6 +117,51 @@ int tstp::genCheckSum(unsigned int dataArray[], unsigned int dataSize) {
 }
 
 void tstp::response() {}
+
+int tstp::c24t16(int part[]) {
+  int R = part[0] >> 3;
+  int G = part[1] >> 2;
+  int B = part[2] >> 3;
+
+  //_s.write("Yo Bitch");
+  //_s.write(((R << 11) + (G << 5)) + B);
+  return ((R << 11) + (G << 5)) + B;
+}
+
+void tstp::makeRGB565() {
+  int part[3]; 
+  bool R = true;
+  bool G, B;
+
+  for (int i = 0; i < tstp::dataSize; i++) {
+    if (R) {
+      part[0] = dataArray[i];
+      R = false;
+      G = true;
+      continue;
+    }
+    if (G) {
+      part[1] = dataArray[i];
+      G = false;
+      B = true;
+      continue;
+    }
+    if (B) {
+      part[2] = dataArray[i];
+      B = false;
+      R = true;
+      int RGB565 = tstp::c24t16(part);
+      tstp::generatedImage[i / 3] = RGB565;
+    }
+  }
+
+  tstp::imageReady = true;
+
+}
+
+
+
+
 
 
 

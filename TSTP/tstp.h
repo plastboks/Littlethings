@@ -30,8 +30,12 @@ class tstp {
     
     void getData();
     void response();
-    unsigned int dataArray[776];
+    unsigned int dataArray[256];
     unsigned int imageInfoArray[6];
+
+    prog_uint16_t generatedImage[64];
+
+    bool imageReady;
 
 
   private: 
@@ -40,17 +44,18 @@ class tstp {
     void string(int input);
     void image(int intput);   
     void verifyCheckSum(int input);
-    void nukeDataArray();
+    void makeRGB565();
 
     int genCheckSum(unsigned int dataArray[], unsigned int dataSize); 
+    int c24t16(int part[]);
 
     unsigned int byteCounter;
     unsigned int dataType;
     unsigned int dataSize;
     unsigned int loopSize;
 
-    boolean gotHeader;
-    boolean readyForChecksum;
+    bool gotHeader;
+    bool readyForChecksum;
     
 };
 

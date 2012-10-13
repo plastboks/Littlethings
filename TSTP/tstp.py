@@ -51,36 +51,22 @@ class tstp:
     
     self.s.write(chr(0xc0)) # send over image length. Hardcoded for now...192
     
-    print("Starting Pos transfer")
     for i in range(0, 6): # image information (hor pos, vert pos, hor size, vertsize)
       self.s.write(chr(0x43)) #Bogus data for now...
-      print(i)
-      print(self.s.readline())
+      time.sleep(0.0001)
 
-
-    print("Starting Data transfer")
     for r, i in enumerate(imgList): # send over actual image data
       self.s.write(chr(i))
-      print(r)
-      if i == ord(self.s.readline()):
-        print("Yay")
-      else:
-        print("FAAAAACKK!!!!!!")
+      time.sleep(0.0001)
 
-    print("Sending ETB")
     self.s.write(chr(0x17)) # send "End of transmission block"
 
-    print("Sending Checksum")
     self.s.write(chr(self.genImageCheckSum(imgList))) # send over checksum for comparison
-    print(self.genImageCheckSum(imgList))
-    print(ord(self.s.readline()))
 
-    #if (self.s.readline() == '\x06'):
-      #print("Yay")
-      #return True
-    #else:
-      #print("Nay")
-      #raise Exception("Data not transmitted successfully")
+    if (self.s.readline() == '\x06'):
+      return True
+    else:
+      raise Exception("Data not transmitted successfully")
 
 
   def genStringCheckSum(self, string):
