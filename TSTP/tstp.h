@@ -30,7 +30,7 @@ class tstp {
     
     void getData();
     void response();
-    unsigned int dataArray[256];
+    unsigned int dataArray[776];
     unsigned int imageInfoArray[6];
 
 

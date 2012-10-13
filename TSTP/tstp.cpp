@@ -80,12 +80,16 @@ void tstp::image(int input) { // NOT A WORKING EXAMPLE, DATA NEED TO BE PROCESSE
 
   if (tstp::byteCounter <= 8) {
     tstp::imageInfoArray[imageCount] = input;
+    _s.write("POS");
   } else if (tstp::loopSize) {
     tstp::dataArray[mainCount] = input;
+    _s.write(input);
     tstp::loopSize--;
   }
 
-  if (input == 0x17) tstp::readyForChecksum = true;
+  if (input == 0x17) {
+    tstp::readyForChecksum = true;
+  }
 
 }
 
@@ -96,9 +100,14 @@ void tstp::nukeDataArray() {
 void tstp::verifyCheckSum(int input) {
   
   if (input == genCheckSum(tstp::dataArray, tstp::dataSize)) {
-    _s.write(0x06);
+    //_s.write(0x06);
+    _s.write(genCheckSum(tstp::dataArray, tstp::dataSize));
+    //_s.write("Arduino says yay!");
   } else {
-    _s.write(0x15);
+    //_s.write(0x15);
+    _s.write(input);
+    //_s.write(genCheckSum(tstp::dataArray, tstp::dataSize));
+    //_s.write("Arduino says nay!");
   }
 
 }
