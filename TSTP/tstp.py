@@ -45,15 +45,25 @@ class tstp:
       raise Exception("Data not transmitted successfully")
 
 
-  def image(self, imgList):
+  def image(self, horPos, vertPos, horSize, vertSize, imgList):
     
     self.s.write(chr(0x02)) # send over type definition
     
     self.s.write(chr(0xc0)) # send over image length. Hardcoded for now...192
     
-    for i in range(0, 6): # image information (hor pos, vert pos, hor size, vertsize)
-      self.s.write(chr(0x43)) #Bogus data for now...
-      time.sleep(0.0001)
+    # send over image info
+    self.s.write(chr(0x00)) # first horPos Byte
+    time.sleep(0.0001)
+    self.s.write(chr(horPos)) # second horPos Byte
+    time.sleep(0.0001)
+    self.s.write(chr(0x00)) # first vertPos Byte
+    time.sleep(0.0001)
+    self.s.write(chr(vertPos)) # second vertPos Byte
+    time.sleep(0.0001)
+    self.s.write(chr(horSize)) # horSize Byte
+    time.sleep(0.0001)
+    self.s.write(chr(vertSize)) # vertSize Byte
+    time.sleep(0.0001)
 
     for r, i in enumerate(imgList): # send over actual image data
       self.s.write(chr(i))

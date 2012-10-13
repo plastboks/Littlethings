@@ -18,6 +18,7 @@
 
 #include "arduino.h"
 #include "tstp.h"
+#include <avr/pgmspace.h>
 
 tstp::tstp(HardwareSerial& serial) : _s(serial) {
   tstp::byteCounter = 0;
@@ -80,11 +81,11 @@ void tstp::string(int input) {
 
 
 void tstp::image(int input) { // NOT A WORKING EXAMPLE, DATA NEED TO BE PROCESSED.
-  int imageCount = tstp::byteCounter - 2;
+  int imageCount = tstp::byteCounter - 3;
   int mainCount = tstp::dataSize - tstp::loopSize;
 
   if (tstp::byteCounter <= 8) {
-    tstp::imageInfoArray[imageCount] = input;
+    tstp::imageInfo[imageCount] = input;
   } else if (tstp::loopSize) {
     tstp::dataArray[mainCount] = input;
     tstp::loopSize--;
@@ -99,9 +100,11 @@ void tstp::verifyCheckSum(int input) {
   
   if (input == genCheckSum(tstp::dataArray, tstp::dataSize)) {
     _s.write(0x06);
+    tstp::cleanUp();
     tstp::makeRGB565();
   } else {
     _s.write(0x15);
+    tstp::cleanUp();
   }
 }
 
@@ -160,7 +163,11 @@ void tstp::makeRGB565() {
 }
 
 
-
+void tstp::cleanUp() {
+  tstp::byteCounter = 0;
+  gotHeader = false;
+  readyForChecksum = false;
+}
 
 
 

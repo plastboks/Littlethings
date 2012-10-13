@@ -16,6 +16,7 @@
 from tstp import tstp
 from serial import Serial
 from rgb565 import rgb565
+from time import sleep
 
 t = tstp(
   Serial(
@@ -25,10 +26,18 @@ t = tstp(
   ) 
 )
 
-r = rgb565("8x8-black.png")
+r = rgb565()
 
+r.setImage("8x8-blue.png")
 try:
-  t.image(r.img24bitList())
+  t.image(100, 100, 8, 8, r.img24bitList())
+except Exception,e:
+  print(e)
+
+sleep(1)
+r.setImage("8x8-green.png")
+try:
+  t.image(50, 50, 8, 8, r.img24bitList())
 except Exception,e:
   print(e)
 

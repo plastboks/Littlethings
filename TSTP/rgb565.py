@@ -22,15 +22,18 @@ import math
 
 class rgb565:
 
-  def __init__(self, image):
-    self.img = Image.open(image)
+  def __init__(self):
     self.imageParts = []
     self.outArray = {}
+
+  def setImage(self, image):
+    self.img = Image.open(image)
+
 
   def imgData(self):
     return self.img.getdata()
 
-  def toRBG565(self, data):
+  def toRGB565(self, data):
     toFiveSixFive = [
       data[0] >> 3,
       data[1] >> 2,

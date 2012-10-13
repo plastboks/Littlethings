@@ -20,7 +20,7 @@
 #define tstp_h
 #include "arduino.h"
 #include "HardwareSerial.h"
-
+#include <avr/pgmspace.h>
 
 class tstp {
   
@@ -31,8 +31,8 @@ class tstp {
     void getData();
     void response();
     unsigned int dataArray[256];
-    unsigned int imageInfoArray[6];
-
+    unsigned int imageInfo[6];
+    
     prog_uint16_t generatedImage[64];
 
     bool imageReady;
@@ -45,6 +45,7 @@ class tstp {
     void image(int intput);   
     void verifyCheckSum(int input);
     void makeRGB565();
+    void cleanUp();
 
     int genCheckSum(unsigned int dataArray[], unsigned int dataSize); 
     int c24t16(int part[]);

@@ -34,17 +34,9 @@ void setup() {
 
 void loop() {
 
-
-
   if (t.imageReady) {
-    //d.drawBitmap(8, 8, 8, 8, t.generatedImage);
-    //d.print("Hei verden", 32, 32);
-    for (int i = 0; i < 64; i++) {
-
-      d.printNumI(i, 64, 48);
-      d.printNumI(t.generatedImage[i], 64,64);
-      delay(2000);
-    }
+    d.drawBitmap(t.imageInfo[1],t.imageInfo[3],t.imageInfo[4],t.imageInfo[5], t.generatedImage);
+    t.imageReady = false;
   }
 
 }
