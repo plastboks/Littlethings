@@ -19,6 +19,7 @@ import sys
 
 class tstp:
 
+
   def __init__(self, serialObject):
     self.s = serialObject
     self.s.flush()
@@ -48,29 +49,21 @@ class tstp:
   def image(self, horPos, vertPos, horSize, vertSize, imgList):
     
     self.s.write(chr(0x02)) # send over type definition
-    
     self.s.write(chr(0xc0)) # send over image length. Hardcoded for now...192
     
     # send over image info
     self.s.write(chr(0x00)) # first horPos Byte
-    time.sleep(0.0001)
     self.s.write(chr(horPos)) # second horPos Byte
-    time.sleep(0.0001)
     self.s.write(chr(0x00)) # first vertPos Byte
-    time.sleep(0.0001)
     self.s.write(chr(vertPos)) # second vertPos Byte
-    time.sleep(0.0001)
     self.s.write(chr(horSize)) # horSize Byte
-    time.sleep(0.0001)
     self.s.write(chr(vertSize)) # vertSize Byte
-    time.sleep(0.0001)
 
     for r, i in enumerate(imgList): # send over actual image data
       self.s.write(chr(i))
       time.sleep(0.0001)
 
     self.s.write(chr(0x17)) # send "End of transmission block"
-
     self.s.write(chr(self.genImageCheckSum(imgList))) # send over checksum for comparison
 
     if (self.s.readline() == '\x06'):
@@ -83,8 +76,10 @@ class tstp:
     bits = map(ord, string)
     return reduce(xor, bits)
 
+
   def genImageCheckSum(self, imgList):
     return reduce(xor, imgList)
+
 
   def genBytes(self, string):
     return map(ord, string)

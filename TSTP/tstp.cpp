@@ -76,7 +76,6 @@ void tstp::string(int input) {
   } 
 
   if (input == 0x17) tstp::readyForChecksum = true;
-
 }
 
 
@@ -92,7 +91,6 @@ void tstp::image(int input) { // NOT A WORKING EXAMPLE, DATA NEED TO BE PROCESSE
   }
 
   if (input == 0x17) tstp::readyForChecksum = true;
-
 }
 
 
@@ -119,7 +117,6 @@ int tstp::genCheckSum(unsigned int dataArray[], unsigned int dataSize) {
   return XOR;  
 }
 
-void tstp::response() {}
 
 int tstp::c24t16(int part[]) {
   int R = part[0] >> 3;
@@ -131,8 +128,10 @@ int tstp::c24t16(int part[]) {
   return ((R << 11) + (G << 5)) + B;
 }
 
+
 void tstp::makeRGB565() {
   int part[3]; 
+  int y;
   bool R = true;
   bool G, B;
 
@@ -154,12 +153,12 @@ void tstp::makeRGB565() {
       B = false;
       R = true;
       int RGB565 = tstp::c24t16(part);
-      tstp::generatedImage[i / 3] = RGB565;
+      if (i == 3) { y = 0; } else { y = i / 3; } // This is ass fugly, but will do for now.
+      tstp::generatedImage[y] = RGB565;
     }
   }
 
   tstp::imageReady = true;
-
 }
 
 
@@ -169,6 +168,8 @@ void tstp::cleanUp() {
   readyForChecksum = false;
 }
 
+
+void tstp::response() {}
 
 
 

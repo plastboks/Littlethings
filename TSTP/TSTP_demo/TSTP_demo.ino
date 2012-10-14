@@ -27,7 +27,7 @@ UTFT d(ITDB32WD,38,39,40,41);
 void setup() {
   d.InitLCD(LANDSCAPE);
   d.setFont(BigFont);
-  Serial.begin(57600);
+  Serial.begin(115200);
   Serial.flush();
 }
 
@@ -44,8 +44,6 @@ void loop() {
 
 void serialEvent() {
   while (Serial.available()) {
-  
     t.getData();   
-
   }
 }
