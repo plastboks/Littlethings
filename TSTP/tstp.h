@@ -18,7 +18,7 @@
 
 #ifndef tstp_h
 #define tstp_h
-#include "arduino.h"
+//#include "arduino.h"
 #include "HardwareSerial.h"
 #include <avr/pgmspace.h>
 

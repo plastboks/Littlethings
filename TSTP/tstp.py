@@ -64,6 +64,7 @@ class tstp:
       time.sleep(0.0001)
 
     self.s.write(chr(0x17)) # send "End of transmission block"
+    #print( map(ord, self.s.read()) )
     self.s.write(chr(self.genImageCheckSum(imgList))) # send over checksum for comparison
 
     if (self.s.readline() == '\x06'):

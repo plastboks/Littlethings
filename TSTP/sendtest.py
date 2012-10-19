@@ -23,7 +23,7 @@ from time import sleep
 
 t = tstp(
   Serial(
-    "/dev/tty.usbmodemfa1221", 
+    "/dev/ttyACM1", 
     115200, 
     timeout=0.01, # Very aggressive timeout because of speed.
   ) 
@@ -31,14 +31,14 @@ t = tstp(
 
 r = rgb565()
 
-r.set("64x64-green.png")
+r.set("64x64.png")
 imgSize = r.size()
 
 p = (imgSize[0] / 8) * (imgSize[1] / 8)
 r.parts(p)
 
-horPos = 168
-vertPos = 88
+horPos = 1
+vertPos = 1
 
 for part in r.imageParts:
   try:
