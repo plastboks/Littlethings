@@ -16,7 +16,7 @@
 
 */
 
-#include "arduino.h"
+//#include "arduino.h"
 #include "tstp.h"
 #include <avr/pgmspace.h>
 
@@ -90,7 +90,10 @@ void tstp::image(int input) { // NOT A WORKING EXAMPLE, DATA NEED TO BE PROCESSE
     tstp::loopSize--;
   }
 
-  if (input == 0x17) tstp::readyForChecksum = true;
+  if (input == 0x17 && !tstp::loopSize) {
+    //_s.write(mainCount);
+    tstp::readyForChecksum = true;
+  }
 }
 
 
@@ -123,8 +126,6 @@ int tstp::c24t16(int part[]) {
   int G = part[1] >> 2;
   int B = part[2] >> 3;
 
-  //_s.write("Yo Bitch");
-  //_s.write(((R << 11) + (G << 5)) + B);
   return ((R << 11) + (G << 5)) + B;
 }
 
