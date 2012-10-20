@@ -57,12 +57,12 @@ void tstp::readData(int input) {
   int data = input;
   
   switch (tstp::dataType) {
-   case 1:
-    tstp::string(data);
-    break;
-   case 2:
-    tstp::image(data);
-    break;
+    case 1:
+      tstp::string(data);
+      break;
+    case 2:
+      tstp::image(data);
+      break;
   }
 }
 
@@ -85,7 +85,7 @@ void tstp::image(int input) {
   int imageCount = tstp::byteCounter - 3;
   int mainCount = tstp::dataSize - tstp::loopSize;
 
-  if (tstp::byteCounter <= 8) {
+  if (tstp::byteCounter <= 10) {
     tstp::imageInfo[imageCount] = input;
   } else if (tstp::loopSize) {
     dataArray[mainCount] = input;
@@ -103,7 +103,14 @@ void tstp::verifyCheckSum(int input) {
   if (input == genCheckSum()) {
     _s.write(0x06);
     tstp::cleanUp();
-    tstp::makeRGB565();
+    switch (tstp::imageInfo[6]) {
+      case 1:
+        tstp::makeRGB565();
+        break;
+      case 2:
+        tstp::conRGB565();
+        break;
+    }
   } else {
     _s.write(0x15);
     tstp::cleanUp();
@@ -131,6 +138,12 @@ int tstp::c24t16(int r, int g, int b) {
 }
 
 
+int tstp::c8t16(int a, int b) {
+  int calc = (a << 8) + b;
+  return calc;
+}
+
+
 void tstp::calcImgPos() {
   tstp::imagePos[0] = (tstp::imageInfo[0] << 8) + (tstp::imageInfo[1]);
   tstp::imagePos[1] = (tstp::imageInfo[2] << 8) + (tstp::imageInfo[3]);
@@ -138,14 +151,23 @@ void tstp::calcImgPos() {
 
 
 void tstp::makeRGB565() {
-
   // Split out the colors
   for (int i = 0; i < (tstp::dataSize/3); i++) {
     int y = i * 3;
     int RGB565 = tstp::c24t16(tstp::dataArray[y], tstp::dataArray[(y+1)], tstp::dataArray[(y+2)]);
     tstp::generatedImage[i] = RGB565;
   }
+  tstp::calcImgPos();
+  tstp::imageReady = true;
+}
 
+
+void tstp::conRGB565() {
+  for (int i = 0; i < (tstp::dataSize/2); i++) {
+    int y = i * 2;
+    int RGB565 = tstp::c8t16(tstp::dataArray[y], tstp::dataArray[(y+1)]);
+    tstp::generatedImage[i] = RGB565;
+  }
   tstp::calcImgPos();
   tstp::imageReady = true;
 }

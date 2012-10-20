@@ -30,7 +30,7 @@ class tstp {
     void getData();
     void response();
     unsigned int dataArray[256];
-    unsigned int imageInfo[6];
+    unsigned int imageInfo[8];
     unsigned int imagePos[2];
 
     prog_uint16_t generatedImage[64];
@@ -41,15 +41,19 @@ class tstp {
   private: 
     void readHeader(int input);
     void readData(int input);
+
     void string(int input);
-    void image(int intput);   
+    void image(int intput);
+
     void verifyCheckSum(int input);
-    void makeRGB565();
+    void makeRGB565(); // for 24bit input
+    void conRGB565(); // for 16bit input
     void calcImgPos();
     void cleanUp();
 
     int genCheckSum(); 
     int c24t16(int r, int g, int b);
+    int c8t16(int a, int b);
 
     unsigned int byteCounter;
     unsigned int dataType;
