@@ -24,7 +24,7 @@ from time import sleep
 
 t = tstp(
   Serial(
-    "/dev/ttyACM1", 
+    "/dev/tty.usbmodemfa1221", 
     115200, 
     timeout=0.01, # Very aggressive timeout because of speed.
   ) 
@@ -32,23 +32,18 @@ t = tstp(
 
 r = rgb565()
 
-r.set("128x128-multi2.png")
+r.set("DemoImages/16x16-multi.png")
 imgSize = r.size()
 
 p = (imgSize[0] / 8) * (imgSize[1] / 8)
 r.parts(p)
 
-horPos = 1
-vertPos = 1
+horPos = 380
+vertPos = 100
 
 for part in r.imageParts:
   try:
-    t.image(
-        part[0][0]+horPos, 
-        part[0][1]+vertPos, 
-        part[1][0], part[1][1], 
-        r.img24bitList(part[2])
-      )
+    t.image( part[0][0]+horPos, part[0][1]+vertPos, part[1][0], part[1][1], r.img24bitList(part[2]) )
   except Exception,e:
     print(e)
 
@@ -56,6 +51,6 @@ for part in r.imageParts:
 
 
 #try:
-#  t.string("Yo Bitch in tha House")
+#  t.string("Hello world")
 #except Exception,e:
 #  print(e)

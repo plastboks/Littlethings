@@ -51,11 +51,18 @@ class tstp:
     self.s.write(chr(0x02)) # send over type definition
     self.s.write(chr(0xc0)) # send over image length. Hardcoded for now...192
     
+    # calculate pos bytes
+    hPosA = horPos >> 8
+    hPosB = horPos & 0xff
+    vPosA = vertPos >> 8
+    vPosB = vertPos & 0xff
+
     # send over image info
-    self.s.write(chr(0x00)) # first horPos Byte
-    self.s.write(chr(horPos)) # second horPos Byte
-    self.s.write(chr(0x00)) # first vertPos Byte
-    self.s.write(chr(vertPos)) # second vertPos Byte
+    self.s.write(chr(hPosA)) # first horPos Byte
+    self.s.write(chr(hPosB)) # second horPos Byte
+    self.s.write(chr(vPosA)) # first vertPos Byte
+    self.s.write(chr(vPosB)) # second vertPos Byte
+    
     self.s.write(chr(horSize)) # horSize Byte
     self.s.write(chr(vertSize)) # vertSize Byte
 
