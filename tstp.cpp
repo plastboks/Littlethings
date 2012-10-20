@@ -75,7 +75,9 @@ void tstp::string(int input) {
     tstp::loopSize--;
   } 
 
-  if (input == 0x17) tstp::readyForChecksum = true;
+  if (input == 0x17 && !tstp::loopSize) {
+    tstp::readyForChecksum = true;
+  }
 }
 
 
