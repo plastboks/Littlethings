@@ -30,12 +30,11 @@ class rgb565:
 
   def set(self, image):
     self.img = Image.open(image)
-    #assert im.mode == 'P'
-    #self.img = self.img.convert('RGB').convert('P', palette=Image.ADAPTIVE)
 
 
   def data(self):
     return self.img.getdata()
+
 
   def size(self):
     return self.img.size

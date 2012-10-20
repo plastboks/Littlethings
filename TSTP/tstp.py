@@ -49,7 +49,7 @@ class tstp:
   def image(self, horPos, vertPos, horSize, vertSize, imgList):
     
     self.s.write(chr(0x02)) # send over type definition
-    self.s.write(chr(0xc0)) # send over image length. Hardcoded for now...192
+    self.s.write(chr(len(imgList))) # send over image length.
     
     # calculate pos bytes
     hPosA = horPos >> 8
@@ -71,7 +71,6 @@ class tstp:
       time.sleep(0.0001)
 
     self.s.write(chr(0x17)) # send "End of transmission block"
-    #print( map(ord, self.s.read()) )
     self.s.write(chr(self.genImageCheckSum(imgList))) # send over checksum for comparison
 
     if (self.s.readline() == '\x06'):
