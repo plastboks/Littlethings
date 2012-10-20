@@ -32,14 +32,14 @@ t = tstp(
 
 r = rgb565()
 
-r.set("DemoImages/128x128-multi3.png")
+r.set("DemoImages/240x240-multi.png")
 imgSize = r.size()
 
 p = (imgSize[0] / 8) * (imgSize[1] / 8)
 r.parts(p)
 
-horPos = 10
-vertPos = 10
+horPos = 0
+vertPos = 0
 
 for part in r.imageParts:
   try:
