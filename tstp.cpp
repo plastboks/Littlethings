@@ -12,13 +12,13 @@
   
   @author: Alexander Skjolden
 
-  @version: 0.0.2
+  @version: 0.0.7
 
 */
 
-//#include "arduino.h"
 #include "tstp.h"
 #include <avr/pgmspace.h>
+
 
 tstp::tstp(HardwareSerial& serial) : _s(serial) {
   tstp::byteCounter = 0;
@@ -79,7 +79,7 @@ void tstp::string(int input) {
 }
 
 
-void tstp::image(int input) { // NOT A WORKING EXAMPLE, DATA NEED TO BE PROCESSED.
+void tstp::image(int input) { 
   int imageCount = tstp::byteCounter - 3;
   int mainCount = tstp::dataSize - tstp::loopSize;
 
@@ -91,7 +91,6 @@ void tstp::image(int input) { // NOT A WORKING EXAMPLE, DATA NEED TO BE PROCESSE
   }
 
   if (input == 0x17 && !tstp::loopSize) {
-    //_s.write(mainCount);
     tstp::readyForChecksum = true;
   }
 }
@@ -130,6 +129,12 @@ int tstp::c24t16(int part[]) {
 }
 
 
+void tstp::calcImgPos() {
+  tstp::imagePos[0] = (tstp::imageInfo[0] << 8) + (tstp::imageInfo[1]);
+  tstp::imagePos[1] = (tstp::imageInfo[2] << 8) + (tstp::imageInfo[3]);
+}
+
+
 void tstp::makeRGB565() {
   int part[3]; 
   int y;
@@ -159,6 +164,7 @@ void tstp::makeRGB565() {
     }
   }
 
+  tstp::calcImgPos();
   tstp::imageReady = true;
 }
 

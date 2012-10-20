@@ -12,13 +12,12 @@
   
   @author: Alexander Skjolden
 
-  @version: 0.0.2
+  @version: 0.0.4
 
 */
 
 #ifndef tstp_h
 #define tstp_h
-//#include "arduino.h"
 #include "HardwareSerial.h"
 #include <avr/pgmspace.h>
 
@@ -32,7 +31,8 @@ class tstp {
     void response();
     unsigned int dataArray[256];
     unsigned int imageInfo[6];
-    
+    unsigned int imagePos[2];
+
     prog_uint16_t generatedImage[64];
 
     bool imageReady;
@@ -45,6 +45,7 @@ class tstp {
     void image(int intput);   
     void verifyCheckSum(int input);
     void makeRGB565();
+    void calcImgPos();
     void cleanUp();
 
     int genCheckSum(unsigned int dataArray[], unsigned int dataSize); 
