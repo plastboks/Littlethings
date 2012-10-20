@@ -2254,10 +2254,11 @@ void UTFT::drawBitmap(int x, int y, int sx, int sy, bitmapdatatype data, int sca
 			cbi(P_CS, B_CS);
 			for (ty=0; ty<sy; ty++)
 			{
-				setXY(x, y+ty, x+sx-1, y+ty);
-				for (tx=sx; tx>=0; tx--)
+				setXY(x, y+ty, x+sx, y+ty); // Changed the calculation to support 8x8px
+				for (tx=(sx-1); tx>=0; tx--)
 				{
-					col=pgm_read_word(&data[(ty*sx)+tx]);
+					// Changed from progmem to regular memory.
+					col = data[(ty*sx)+tx];
 					LCD_Write_DATA(col>>8,col & 0xff);
 				}
 			}
