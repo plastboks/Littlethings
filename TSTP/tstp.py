@@ -46,7 +46,7 @@ class tstp:
       raise Exception("Data not transmitted successfully")
 
 
-  def image(self, horPos, vertPos, horSize, vertSize, imgList):
+  def image(self, horPos, vertPos, horSize, vertSize, imgType, imgList):
     
     self.s.write(chr(0x02)) # send over type definition
     self.s.write(chr(len(imgList))) # send over image length.
@@ -65,6 +65,8 @@ class tstp:
     
     self.s.write(chr(horSize)) # horSize Byte
     self.s.write(chr(vertSize)) # vertSize Byte
+    self.s.write(chr(imgType)) # 1 for 24 bit, 2 for 16bit
+    self.s.write(chr(0x17)) # spare byte, not in use for now.
 
     for r, i in enumerate(imgList): # send over actual image data
       self.s.write(chr(i))

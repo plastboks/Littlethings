@@ -31,18 +31,20 @@ t = tstp(
 
 r = rgb565()
 
-r.set("DemoImages/240x240-multi2.png")
+r.set("DemoImages/400x240-multi.png")
+r.setMode("24bit")
+
 imgSize = r.size()
-
 p = (imgSize[0] / 8) * (imgSize[1] / 8)
-r.parts(p, random=True)
 
-horPos = 80
+imgParts = r.parts(p, random=True)
+
+horPos = 4
 vertPos = 0
 
-for part in r.imageParts:
+for part in imgParts:
   try:
-    t.image( part[0][0]+horPos, part[0][1]+vertPos, part[1][0], part[1][1], r.img24bitList(part[2]) )
+    t.image( part[0][0]+horPos, part[0][1]+vertPos, part[1][0], part[1][1], 1, r.imgList(part[2]) )
   except Exception,e:
     print(e)
 

@@ -19,18 +19,29 @@ from PIL import Image
 from random import shuffle
 import time
 import math
+import sys
 
 
 class rgb565:
 
 
   def __init__(self):
-    self.imageParts = []
     self.outArray = {}
+    self.mode = 0
 
 
   def set(self, image):
     self.img = Image.open(image)
+
+
+  def setMode(self, string):
+    if (string == "24bit"):
+      self.mode = 1
+    elif (string == "16bit"):
+      self.mode = 2
+    else:
+      print("Unknown mode")
+      sys.exit()
 
 
   def data(self):
@@ -47,7 +58,8 @@ class rgb565:
       data[1] >> 2,
       data[2] >> 3,
       ]
-    return hex( ((toFiveSixFive[0] << 11) + (toFiveSixFive[1] << 5)) + toFiveSixFive[2] )
+    highColor = ((toFiveSixFive[0] << 11) + (toFiveSixFive[1] << 5)) + toFiveSixFive[2]
+    return [(highColor >> 8), (highColor & 8)]
 
 
   def split(self, imgSize, splits):
@@ -65,26 +77,44 @@ class rgb565:
         y = c + h if c != 1 else (c + h) - 1
         z = r + v if r != 1 else (r + v) - 1
         outDict.append((w, x, y, z))
-
     return outDict
 
 
-  def img24bitList(self, inputImage=False):
+  def img24bitList(self, inputImage):
     outList = []
-    if inputImage:
-      pic = inputImage
-    else:
-      pic = self.data()
-    for byte in pic:
+
+    for byte in inputImage:
       for bit in byte:
         outList.append(bit)
-    
     return outList
 
 
+  def c16List(self, inputImage):
+    outList = []
+
+    for byte in inputImage:
+      c3t2 = self.toRGB565(byte)
+      outList.append(c3t2[0])
+      outList.append(c3t2[1])
+    return outList
+
+
+
+  def imgList(self, inputImage):
+    if (self.mode == 1):
+      return self.img24bitList(inputImage)
+    elif (self.mode == 2):
+      return self.c16List(inputImage)
+
+
+
   def parts(self, parts, random=False):
+    imageParts = []
     for c in self.split(self.size(), parts):
-      self.imageParts.append([c, self.img.crop(c).size, list(self.img.crop(c).getdata())])
+      imageParts.append([c, self.img.crop(c).size, list(self.img.crop(c).getdata())])
       if (random):
-        shuffle(self.imageParts)
-    return True
+        shuffle(imageParts)
+    return imageParts
+
+
+
