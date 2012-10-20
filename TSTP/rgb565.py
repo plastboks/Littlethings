@@ -16,6 +16,7 @@
 # from 8bit to 5/6 bit = 255 >> 3 (5bit), org 255 >> 2 (6bit)
 
 from PIL import Image
+from random import shuffle
 import time
 import math
 
@@ -81,7 +82,9 @@ class rgb565:
     return outList
 
 
-  def parts(self, parts):
+  def parts(self, parts, random=False):
     for c in self.split(self.size(), parts):
       self.imageParts.append([c, self.img.crop(c).size, list(self.img.crop(c).getdata())])
+      if (random):
+        shuffle(self.imageParts)
     return True

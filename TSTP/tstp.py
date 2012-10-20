@@ -68,7 +68,7 @@ class tstp:
 
     for r, i in enumerate(imgList): # send over actual image data
       self.s.write(chr(i))
-      time.sleep(0.0001)
+      #time.sleep(0.0000001)
 
     self.s.write(chr(0x17)) # send "End of transmission block"
     self.s.write(chr(self.genImageCheckSum(imgList))) # send over checksum for comparison

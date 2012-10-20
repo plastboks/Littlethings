@@ -14,7 +14,6 @@
 #
 
 import sys
-import random
 
 from tstp import tstp
 from serial import Serial
@@ -32,13 +31,13 @@ t = tstp(
 
 r = rgb565()
 
-r.set("DemoImages/240x240-multi.png")
+r.set("DemoImages/240x240-multi2.png")
 imgSize = r.size()
 
 p = (imgSize[0] / 8) * (imgSize[1] / 8)
-r.parts(p)
+r.parts(p, random=True)
 
-horPos = 0
+horPos = 80
 vertPos = 0
 
 for part in r.imageParts:
@@ -47,7 +46,7 @@ for part in r.imageParts:
   except Exception,e:
     print(e)
 
-  sleep(0.0001)
+  sleep(0.000001)
 
 
 #try:
