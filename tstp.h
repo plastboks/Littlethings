@@ -48,8 +48,8 @@ class tstp {
     void calcImgPos();
     void cleanUp();
 
-    int genCheckSum(unsigned int dataArray[], unsigned int dataSize); 
-    int c24t16(int part[]);
+    int genCheckSum(); 
+    int c24t16(int r, int g, int b);
 
     unsigned int byteCounter;
     unsigned int dataType;

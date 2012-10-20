@@ -86,7 +86,7 @@ void tstp::image(int input) {
   if (tstp::byteCounter <= 8) {
     tstp::imageInfo[imageCount] = input;
   } else if (tstp::loopSize) {
-    tstp::dataArray[mainCount] = input;
+    dataArray[mainCount] = input;
     tstp::loopSize--;
   }
 
@@ -98,7 +98,7 @@ void tstp::image(int input) {
 
 void tstp::verifyCheckSum(int input) {
   
-  if (input == genCheckSum(tstp::dataArray, tstp::dataSize)) {
+  if (input == genCheckSum()) {
     _s.write(0x06);
     tstp::cleanUp();
     tstp::makeRGB565();
@@ -109,23 +109,23 @@ void tstp::verifyCheckSum(int input) {
 }
 
 
-int tstp::genCheckSum(unsigned int dataArray[], unsigned int dataSize) {
+int tstp::genCheckSum() {
   int i, XOR, c;
 
-  for (XOR = 0, i = 0; i < dataSize; i++) {
-    c = dataArray[i];
+  for (XOR = 0, i = 0; i < tstp::dataSize; i++) {
+    c = tstp::dataArray[i];
     XOR ^= c;
   }
   return XOR;  
 }
 
 
-int tstp::c24t16(int part[]) {
-  int R = part[0] >> 3;
-  int G = part[1] >> 2;
-  int B = part[2] >> 3;
+int tstp::c24t16(int r, int g, int b) {
+  int R16 = r >> 3;
+  int G16 = g >> 2;
+  int B16 = b >> 3;
 
-  return ((R << 11) + (G << 5)) + B;
+  return ((R16 << 11) + (G16 << 5)) + B16;
 }
 
 
@@ -136,32 +136,12 @@ void tstp::calcImgPos() {
 
 
 void tstp::makeRGB565() {
-  int part[3]; 
-  int y;
-  bool R = true;
-  bool G, B;
 
-  for (int i = 0; i < tstp::dataSize; i++) {
-    if (R) {
-      part[0] = dataArray[i];
-      R = false;
-      G = true;
-      continue;
-    }
-    if (G) {
-      part[1] = dataArray[i];
-      G = false;
-      B = true;
-      continue;
-    }
-    if (B) {
-      part[2] = dataArray[i];
-      B = false;
-      R = true;
-      int RGB565 = tstp::c24t16(part);
-      if (i == 3) { y = 0; } else { y = i / 3; } // This is ass fugly, but will do for now.
-      tstp::generatedImage[y] = RGB565;
-    }
+  // Split out the colors
+  for (int i = 0; i < (tstp::dataSize/3); i++) {
+    int y = i * 3;
+    int RGB565 = tstp::c24t16(tstp::dataArray[y], tstp::dataArray[(y+1)], tstp::dataArray[(y+2)]);
+    tstp::generatedImage[i] = RGB565;
   }
 
   tstp::calcImgPos();
