@@ -4,7 +4,7 @@
 
   @description: Tweeno small transport protocol is a simple and 
                 stupid protocol for communication between Arduino and python.
-                The reason for this protocol is for simplefy datatransmission.
+                The reason for this protocol is for simplify datatransmission.
 
   @date: 2012-10-09
 
