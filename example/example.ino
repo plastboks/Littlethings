@@ -16,7 +16,7 @@
 
 #include <UTFT.h>
 #include <avr/pgmspace.h>
-#include "tstp.h"
+#include <tstp.h>
 
 tstp t(Serial);
 
@@ -35,8 +35,13 @@ void setup() {
 void loop() {
 
   if (t.imageReady) {
-    d.drawBitmap(t.imageInfo[1],t.imageInfo[3],t.imageInfo[4],t.imageInfo[5], t.generatedImage);
+    d.drawBitmap(t.imagePos[0],t.imagePos[1],t.imageInfo[4],t.imageInfo[5], t.generatedImage);
     t.imageReady = false;
+  }
+
+  if (t.stringReady) {
+    d.print(t.stringData, CENTER, 180);
+    t.stringReady = false;
   }
 
 }

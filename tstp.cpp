@@ -68,7 +68,7 @@ void tstp::readData(int input) {
 
 
 void tstp::string(int input) {
-  int mainCount = tstp::byteCounter - 2;
+  int mainCount = tstp::dataSize - tstp::loopSize;
 
   if (tstp::loopSize) {
     tstp::dataArray[mainCount] = input;
@@ -103,13 +103,17 @@ void tstp::verifyCheckSum(int input) {
   if (input == genCheckSum()) {
     _s.write(0x06);
     tstp::cleanUp();
-    switch (tstp::imageInfo[6]) {
-      case 1:
-        tstp::makeRGB565();
-        break;
-      case 2:
-        tstp::conRGB565();
-        break;
+    if (tstp::dataType == 1) {
+      tstp::makeString();
+    } else if (tstp::dataType == 2) {
+      switch (tstp::imageInfo[6]) {
+        case 1:
+          tstp::makeRGB565();
+          break;
+        case 2:
+          tstp::conRGB565();
+          break;
+      } 
     }
   } else {
     _s.write(0x15);
@@ -147,6 +151,14 @@ int tstp::c8t16(int a, int b) {
 void tstp::calcImgPos() {
   tstp::imagePos[0] = (tstp::imageInfo[0] << 8) + (tstp::imageInfo[1]);
   tstp::imagePos[1] = (tstp::imageInfo[2] << 8) + (tstp::imageInfo[3]);
+}
+
+
+void tstp::makeString() {
+  for (int i = 0; i < tstp::dataSize; i++) {
+    tstp::stringData[i] = tstp::dataArray[i];
+  }
+  tstp::stringReady = true;
 }
 
 

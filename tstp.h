@@ -34,8 +34,10 @@ class tstp {
     unsigned int imagePos[2];
 
     prog_uint16_t generatedImage[64];
+    char stringData[256];
 
     bool imageReady;
+    bool stringReady;
 
 
   private: 
@@ -46,6 +48,7 @@ class tstp {
     void image(int intput);
 
     void verifyCheckSum(int input);
+    void makeString();
     void makeRGB565(); // for 24bit input
     void conRGB565(); // for 16bit input
     void calcImgPos();
