@@ -3,8 +3,8 @@ TweenoSTP
 
 Tweeno::SimpleTransferProtocol
 
-A simple protocol for transfering image, and stringdata from a computer.
-The library is for now optimized for Python Serial and Python PIL.
+A simple protocol for transfering image, and stringdata from a computer to a Arduino microcontroller.
+The library is for now made to work with a display from iteadstudio.com and TweenoUTFT.
 As of 2012-10-19 the project is still early Alpha state.
 
 
