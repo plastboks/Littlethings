@@ -21,11 +21,11 @@ from rgb565 import rgb565
 from time import sleep
 
 
-serialPort = "/dev/tty.usb0"
+serialPort = "/dev/ttyACM0"
 serialSpeed = 115200
 serialTimeout = 0.01
 
-demoImage = "img/128x128.png"
+demoImage = "../img/128x128.png"
 imageMode = "24bit"
 drawRandom = True
 
