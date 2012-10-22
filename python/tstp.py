@@ -33,7 +33,6 @@ class tstp:
     time.sleep(1) # this takes some time...
 
 
-
   def string(self, horPos, vertPos, stringType, string):
     
     self.s.write(chr(0x01)) # type definition
