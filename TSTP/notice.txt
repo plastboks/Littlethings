@@ -1,3 +1,0 @@
-Had to change line 2196 in UTFT.cpp to: col = data[(ty*sx)+tx];
-
-THIS MUST BE DEALT WITH IN A BETTER MANNER.
