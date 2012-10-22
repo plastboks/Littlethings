@@ -21,7 +21,7 @@ from rgb565 import rgb565
 from time import sleep
 
 
-serialPort = "/dev/ttyACM0"
+serialPort = "/dev/tty.usbmodemfa1221"
 serialSpeed = 115200
 serialTimeout = 0.01
 
@@ -29,9 +29,8 @@ demoImage = "../img/128x128.png"
 imageMode = "24bit"
 drawRandom = True
 
-horizontalPos = 136
+horizontalPos = 20
 verticalPos = 20
-
 
 
 t = tstp(Serial(serialPort, serialSpeed, timeout=serialTimeout))
@@ -52,8 +51,17 @@ for part in imgParts:
     print(e)
   sleep(0.000001)
 
+sleep(0.1)
 
 try:
-  t.string("Hello world")
+  t.string(180, 20, 1, "Hello World!")
 except Exception,e:
   print(e)
+
+sleep(0.000001)
+
+try:
+  t.string(180, 45, 1, "Goodbye World!")
+except Exception,e:
+  print(e)
+

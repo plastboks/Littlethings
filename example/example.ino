@@ -35,12 +35,12 @@ void setup() {
 void loop() {
 
   if (t.imageReady) {
-    d.drawBitmap(t.imagePos[0],t.imagePos[1],t.imageInfo[4],t.imageInfo[5], t.generatedImage);
+    d.drawBitmap8S(t.position[0],t.position[1],t.dataInfo[4],t.dataInfo[5], t.generatedImage);
     t.imageReady = false;
   }
 
   if (t.stringReady) {
-    d.print(t.stringData, CENTER, 180);
+    d.print(t.stringData, t.position[0], t.position[1]);
     t.stringReady = false;
   }
 

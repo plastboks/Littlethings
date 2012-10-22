@@ -68,9 +68,12 @@ void tstp::readData(int input) {
 
 
 void tstp::string(int input) {
+  int stringCount = tstp::byteCounter - 3;
   int mainCount = tstp::dataSize - tstp::loopSize;
 
-  if (tstp::loopSize) {
+  if (tstp::byteCounter <= 8) {
+    tstp::dataInfo[stringCount] = input;
+  } else if (tstp::loopSize) {
     tstp::dataArray[mainCount] = input;
     tstp::loopSize--;
   } 
@@ -86,7 +89,7 @@ void tstp::image(int input) {
   int mainCount = tstp::dataSize - tstp::loopSize;
 
   if (tstp::byteCounter <= 10) {
-    tstp::imageInfo[imageCount] = input;
+    tstp::dataInfo[imageCount] = input;
   } else if (tstp::loopSize) {
     dataArray[mainCount] = input;
     tstp::loopSize--;
@@ -106,7 +109,7 @@ void tstp::verifyCheckSum(int input) {
     if (tstp::dataType == 1) {
       tstp::makeString();
     } else if (tstp::dataType == 2) {
-      switch (tstp::imageInfo[6]) {
+      switch (tstp::dataInfo[6]) {
         case 1:
           tstp::makeRGB565();
           break;
@@ -148,9 +151,9 @@ int tstp::c8t16(int a, int b) {
 }
 
 
-void tstp::calcImgPos() {
-  tstp::imagePos[0] = (tstp::imageInfo[0] << 8) + (tstp::imageInfo[1]);
-  tstp::imagePos[1] = (tstp::imageInfo[2] << 8) + (tstp::imageInfo[3]);
+void tstp::calcPos() {
+  tstp::position[0] = (tstp::dataInfo[0] << 8) + (tstp::dataInfo[1]);
+  tstp::position[1] = (tstp::dataInfo[2] << 8) + (tstp::dataInfo[3]);
 }
 
 
@@ -158,6 +161,7 @@ void tstp::makeString() {
   for (int i = 0; i < tstp::dataSize; i++) {
     tstp::stringData[i] = tstp::dataArray[i];
   }
+  tstp::calcPos();
   tstp::stringReady = true;
 }
 
@@ -169,7 +173,7 @@ void tstp::makeRGB565() {
     int RGB565 = tstp::c24t16(tstp::dataArray[y], tstp::dataArray[(y+1)], tstp::dataArray[(y+2)]);
     tstp::generatedImage[i] = RGB565;
   }
-  tstp::calcImgPos();
+  tstp::calcPos();
   tstp::imageReady = true;
 }
 
@@ -180,7 +184,7 @@ void tstp::conRGB565() {
     int RGB565 = tstp::c8t16(tstp::dataArray[y], tstp::dataArray[(y+1)]);
     tstp::generatedImage[i] = RGB565;
   }
-  tstp::calcImgPos();
+  tstp::calcPos();
   tstp::imageReady = true;
 }
 

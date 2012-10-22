@@ -26,11 +26,26 @@ class tstp:
     time.sleep(2) # The microcontroller need some time to restore from reboot.
 
 
-  def string(self, string):
+  def string(self, horPos, vertPos, stringType, string):
     
     self.s.write(chr(0x01)) # type definition
     self.s.write(chr(len(self.genBytes(string)))) # string length
     
+    # calculate pos bytes
+    hPosA = horPos >> 8
+    hPosB = horPos & 0xff
+    vPosA = vertPos >> 8
+    vPosB = vertPos & 0xff
+
+    # send over image info
+    self.s.write(chr(hPosA)) # first horPos Byte
+    self.s.write(chr(hPosB)) # second horPos Byte
+    self.s.write(chr(vPosA)) # first vertPos Byte
+    self.s.write(chr(vPosB)) # second vertPos Byte
+
+    self.s.write(chr(stringType)) # Not in use atm
+    self.s.write(chr(0x17)) # spare byte, not in use for now.
+
     for i in self.genBytes(string): # string data
       self.s.write(chr(i))
     
