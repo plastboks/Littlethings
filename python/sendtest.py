@@ -41,7 +41,6 @@ r.setMode(imageMode)
 
 imgSize = r.size()
 p = (imgSize[0] / 8) * (imgSize[1] / 8)
-
 imgParts = r.parts(p, random=drawRandom)
 
 for part in imgParts:
@@ -53,15 +52,18 @@ for part in imgParts:
 
 sleep(0.1)
 
+
 try:
-  t.string(180, 20, 1, "Hello World!")
+  t.string(170, 20, 1, "Hello World!")
 except Exception,e:
   print(e)
 
 sleep(0.000001)
 
-try:
-  t.string(180, 45, 1, "Goodbye World!")
+#t.clearScr()
+
+try: 
+  t.string(170, 45, 1, "Goodbye World!")
 except Exception,e:
   print(e)
 

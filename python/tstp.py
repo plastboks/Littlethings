@@ -26,6 +26,14 @@ class tstp:
     time.sleep(2) # The microcontroller need some time to restore from reboot.
 
 
+  def clearScr(self):
+    self.s.write(chr(0xff)) # type definition
+    self.s.write(chr(0x00)) # zero length
+    self.s.write(chr(0x00)) # zero data
+    time.sleep(1) # this takes some time...
+
+
+
   def string(self, horPos, vertPos, stringType, string):
     
     self.s.write(chr(0x01)) # type definition

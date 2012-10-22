@@ -63,6 +63,10 @@ void tstp::readData(int input) {
     case 2:
       tstp::image(data);
       break;
+    case 255:
+      tstp::clearScr = true;
+      tstp::cleanUp();
+      break;
   }
 }
 

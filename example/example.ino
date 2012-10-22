@@ -44,6 +44,10 @@ void loop() {
     t.stringReady = false;
   }
 
+  if (t.clearScr) {
+    d.clrScr();
+    t.clearScr = false;
+  }
 }
 
 

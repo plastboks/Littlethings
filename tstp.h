@@ -40,6 +40,7 @@ class tstp {
 
     bool imageReady;
     bool stringReady;
+    bool clearScr;
 
 
   private: 
@@ -53,7 +54,7 @@ class tstp {
     void makeString();
     void makeRGB565(); // for 24bit input
     void conRGB565(); // for 16bit input
-    
+
     void calcPos();
     void cleanUp();
 
