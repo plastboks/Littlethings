@@ -25,7 +25,8 @@ import fetch
 
 c = config.Config()
 t = fetch.tweet(c)
-d = LCD.p160_128(c.s_port, 57600)
+#d = LCD.p160_128(c.s_port, 57600)
+d = LCD.p400_240(c.s_port, 115200)
 
 oldMessage = None
 
