@@ -142,6 +142,7 @@ class UTFT
 		void printNumI(long num, int x, int y, int length=0, char filler=' ');
 		void printNumF(double num, byte dec, int x, int y, char divider='.', int length=0, char filler=' ');
 		void setFont(uint8_t* font);
+    void drawBitmap8S(int x, int y, int sx, int sy, bitmapdatatype data, int scale=1);
 		void drawBitmap(int x, int y, int sx, int sy, bitmapdatatype data, int scale=1);
 		void drawBitmap(int x, int y, int sx, int sy, bitmapdatatype data, int deg, int rox, int roy);
 		void lcdOff();
