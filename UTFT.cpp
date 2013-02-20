@@ -1163,6 +1163,39 @@ uint8_t UTFT::getFontYsize()
 	return cfont.y_size;
 }
 
+// A custom method for 8x8 bitmaps from Serial port.
+void UTFT::drawBitmap8S(int x, int y, int sx, int sy, bitmapdatatype data, int scale) {
+
+  unsigned int col;
+  int tx, ty, tc, tsx, tsy;
+  byte r, g, b;
+
+  if (orient==PORTRAIT) {
+    cbi(P_CS, B_CS);
+    setXY(x, y, x+sx-1, y+sy-1);
+    for (tc=0; tc<(sx*sy); tc++)
+    {
+      col=pgm_read_word(&data[tc]);
+      LCD_Write_DATA(col>>8,col & 0xff);
+    }
+    sbi(P_CS, B_CS);
+  } else {
+    cbi(P_CS, B_CS);
+    for (ty=0; ty<sy; ty++)
+    {
+      setXY(x, y+ty, x+sx, y+ty); // Changed the calculation to support 8x8px
+      for (tx=(sx-1); tx>=0; tx--)
+      {
+        // Changed from progmem to regular memory.
+        col = data[(ty*sx)+tx];
+        LCD_Write_DATA(col>>8,col & 0xff);
+      }
+    }
+    sbi(P_CS, B_CS);
+  }
+
+}
+
 void UTFT::drawBitmap(int x, int y, int sx, int sy, bitmapdatatype data, int scale)
 {
 	unsigned int col;
