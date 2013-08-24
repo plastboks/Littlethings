@@ -1,11 +1,10 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-
 #
 # Tweeno deamon file
 #
 # @name: deamon.py
-# 
+#
 # @date: 2012-09-13
 #
 # @version: 0.0.1
@@ -22,27 +21,24 @@ import functions
 import LCD
 import fetch
 
-
 c = config.Config()
 t = fetch.tweet(c)
 #d = LCD.p160_128(c.s_port, 57600)
 d = LCD.p400_240(c.s_port, 115200)
-
 oldMessage = None
 
 while True:
-  data = t.fetchNewMessage()
+    data = t.fetchNewMessage()
 
-  asciiMessage = t.asciiMe(data[0])
+    asciiMessage = t.asciiMe(data[0])
 
-  if not asciiMessage == oldMessage:
-    print asciiMessage + "\nBy @:" +data[1]
-    oldMessage = asciiMessage
-    d.clear()
-    d.send(asciiMessage)
-    d.byline(data[1])
-    d.end()
-  time.sleep(30)
+    if not asciiMessage == oldMessage:
+        print asciiMessage + "\nBy @:" + data[1]
+        oldMessage = asciiMessage
+        d.clear()
+        d.send(asciiMessage)
+        d.byline(data[1])
+        d.end()
+    time.sleep(30)
 
 d.close()
-
