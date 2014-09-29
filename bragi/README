@@ -1,0 +1,6 @@
+Bragi is a small GPS project using a Arduino UNO R3, 128x64 LCD Display and a GPS receiver.
+
+The project uses the following libraries:
+* U8GLIB
+* TinyGPS
+
